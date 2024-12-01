@@ -3,5 +3,5 @@
     <string name="app_intent_filter_description">Share as QR Code</string>
     <string name="unsupported_mimetype">Unsupported mimeType:\ </string>
     <string name="default_start_string">Loading default link:\ </string>
-    <string name="qr_code_description">com.example.com</string>
+    <string name="qr_code_description">QRshare</string>
 </resources>
