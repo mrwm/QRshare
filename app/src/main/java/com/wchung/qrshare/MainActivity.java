@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 //import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -113,6 +115,11 @@ public class MainActivity extends AppCompatActivity {
             data = type + " : " + data;
         }
         tv.setText(data);
+        tv.setMovementMethod(new ScrollingMovementMethod());
+        /* TODO:
+        - Make the text not span to the bottom of the screen
+        - Maybe check max size of the shared text?
+         */
     }
 
     String handleSendText(Intent intent) {
@@ -128,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
             ContentResolver contentResolver = getContentResolver();
             try {
-                InputStream inputStream = contentResolver.openInputStream(intent.getParcelableExtra("android.intent.extra.STREAM"));
+                InputStream inputStream = contentResolver.openInputStream(Objects.requireNonNull(intent.getParcelableExtra("android.intent.extra.STREAM")));
                 // Process the stream data here
                 Log.w("QR test", "Stream opened");
                 BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
