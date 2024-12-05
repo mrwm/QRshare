@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         tv.setMovementMethod(new ScrollingMovementMethod());
         /* TODO:
         - Make the text not span to the bottom of the screen
-        - Maybe check max size of the shared text?
+        - Max size is around 1307? So about 1.307kB?
          */
     }
 
@@ -136,14 +136,20 @@ public class MainActivity extends AppCompatActivity {
             ContentResolver contentResolver = getContentResolver();
             try {
                 InputStream inputStream = contentResolver.openInputStream(Objects.requireNonNull(intent.getParcelableExtra("android.intent.extra.STREAM")));
+                assert inputStream != null;
                 // Process the stream data here
-                Log.w("QR test", "Stream opened");
+                //Log.w("QR test", "Stream opened");
+                //Log.i("QR test", "File Size: " + inputStream.available());
+                if (inputStream.available() > 1307) {
+                    //Log.w("QR test", "Data too large to share");
+                    Toast.makeText(getApplicationContext(), "Data too large to share", Toast.LENGTH_LONG).show();
+                }
                 BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder total = new StringBuilder();
                 for (String line; (line = r.readLine()) != null; ) {
                     total.append(line).append('\n');
                 }
-                Log.w("QR test", total.toString());
+                //Log.w("QR test", total.toString());
                 return total.toString();
 
             } catch (IOException e) {
