@@ -112,9 +112,10 @@ public class MainActivity extends AppCompatActivity {
         ////// TEXT GENERATION //////
         TextView tv = findViewById(R.id.qr_subtitle);
         if (type != null) {
-            data = type + " : " + data;
+            data = type + " : \n" + data;
         }
         tv.setText(data);
+        tv.getLayoutParams().height = getTextViewHeightLimit();
         tv.setMovementMethod(new ScrollingMovementMethod());
         /* TODO:
         - Make the text not span to the bottom of the screen
@@ -181,6 +182,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public static int getTextViewHeightLimit() {
+        float screenPercentage = 0.8f;
+        int screenHeight = (int) (getScreenWidth() * screenPercentage) / 2;
+        screenHeight = (Resources.getSystem().getDisplayMetrics().heightPixels / 2 ) - screenHeight;
+        Log.w("QR test", "Screen height: " + screenHeight);
+        return screenHeight;
     }
 
     public void onPause(){
