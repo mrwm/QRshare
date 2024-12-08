@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-//import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -139,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
                 InputStream inputStream = contentResolver.openInputStream(Objects.requireNonNull(intent.getParcelableExtra("android.intent.extra.STREAM")));
                 assert inputStream != null;
                 // Process the stream data here
-                //Log.w("QR test", "Stream opened");
                 //Log.i("QR test", "File Size: " + inputStream.available());
                 if (inputStream.available() > 1307) {
                     //Log.w("QR test", "Data too large to share");
