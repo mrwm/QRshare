@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -50,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         String action = intent.getAction();
         String type = intent.getType();
 
-
         String data = getString(R.string.qr_code_description);
         String unsupported_mimetype = getString(R.string.unsupported_mimetype);
         if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 data = type.split("/")[0];
                 Toast.makeText(getApplicationContext(), unsupported_mimetype + data, Toast.LENGTH_LONG).show();
-                //handleSendImage(intent); // Handle single image being sent
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             if (type.startsWith("image/")) {
@@ -76,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
             // Handle other intents, such as being started from the home screen
         }
 
-
         /*
          * Maybe... Convert non-text data to text with base64 encoding
          * Then pipe it into the QR code with the following layout:
@@ -87,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
          * The only drawback is the limitation of file size
          * 2950 bytes or 2.95 Kb max for QR codes
          * */
-
-
 
         ////// QR CODE GENERATION //////
         float screenPercentage = 0.8f;
@@ -110,12 +106,11 @@ public class MainActivity extends AppCompatActivity {
 
         ////// TEXT GENERATION //////
         TextView tv = findViewById(R.id.qr_subtitle);
+        TextInputLayout tvh = findViewById(R.id.qr_subtitle_hint);
         if (type != null) {
-            data = type + " : \n" + data;
+            tvh.setHint(type);
         }
         tv.setText(data);
-        tv.getLayoutParams().height = getTextViewHeightLimit();
-        tv.setMovementMethod(new ScrollingMovementMethod());
         /* TODO:
         - Make the text not span to the bottom of the screen
         - Max size is around 1307? So about 1.307kB?
@@ -137,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 InputStream inputStream = contentResolver.openInputStream(Objects.requireNonNull(intent.getParcelableExtra("android.intent.extra.STREAM")));
                 assert inputStream != null;
-                // Process the stream data here
+                // Returns the file size in bytes
                 //Log.i("QR test", "File Size: " + inputStream.available());
                 if (inputStream.available() > 1307) {
                     //Log.w("QR test", "Data too large to share");
@@ -148,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
                 for (String line; (line = r.readLine()) != null; ) {
                     total.append(line).append('\n');
                 }
-                //Log.w("QR test", total.toString());
                 return total.toString();
 
             } catch (IOException e) {
@@ -165,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     public BitMatrix generateQRCode(String data, int width, int height) {
         try {
             Map<EncodeHintType, Object> hints = new HashMap<>();
@@ -180,14 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
-    }
-
-    public static int getTextViewHeightLimit() {
-        float screenPercentage = 0.8f;
-        int screenHeight = (int) (getScreenWidth() * screenPercentage) / 2;
-        screenHeight = (Resources.getSystem().getDisplayMetrics().heightPixels / 2 ) - screenHeight;
-        Log.w("QR test", "Screen height: " + screenHeight);
-        return screenHeight;
     }
 
     public void onPause(){
