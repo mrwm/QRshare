@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         String action = intent.getAction();
         String type = intent.getType();
 
-        String data = getString(R.string.qr_code_description);
+        String data = getString(R.string.qr_instructions);
         String unsupported_mimetype = getString(R.string.unsupported_mimetype);
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text".equals(type.split("/")[0])) {
