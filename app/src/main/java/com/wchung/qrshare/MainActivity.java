@@ -5,6 +5,10 @@ import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -35,6 +39,16 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
+    NfcAdapter mNfcAdapter;
+    public static final String ACTION_ADAPTER_STATE_CHANGED = null;
+
+//    public NdefMessage createNdefMessage(NfcEvent event) {
+//        Log.i("NFC", event.toString());
+//        return new NdefMessage(new NdefRecord[] {
+//                NdefRecord.createUri(event.toString())
+//        });
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +59,22 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        ////// NFC setup //////
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter != null) {
+            // Register callback to set NDEF message
+            //mNfcAdapter.setNdefPushMessageCallback(this, this);
+
+            Log.i("NFC", "NFC is available on this device. State: " + ACTION_ADAPTER_STATE_CHANGED);
+            NdefRecord ndefRecord = NdefRecord.createUri("https://www.google.com/");
+            NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ndefRecord});
+            mNfcAdapter.notify();
+            // Register callback to listen for message-sent success
+            //mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
+        } else {
+            Log.i("NFC", "NFC is not available on this device");
+        }
+
 
         ////// Intent captures //////
         Intent intent = getIntent();
