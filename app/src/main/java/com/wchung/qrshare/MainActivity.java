@@ -1,5 +1,6 @@
 package com.wchung.qrshare;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.ContentResolver;
 import android.content.res.Resources;
@@ -7,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,17 +94,10 @@ public class MainActivity extends AppCompatActivity {
         int screenWidth = (int) (getScreenWidth() * screenPercentage);
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
         BitMatrix bitMatrix = generateQRCode(data, screenWidth, screenHeight);
+        ImageView iv = findViewById(R.id.imageViewQRCode);
+        iv.setOnClickListener(this::generate_QR);
         if (bitMatrix != null) {
-            int width = bitMatrix.getWidth();
-            int height = bitMatrix.getHeight();
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
-                }
-            }
-            ImageView iv = findViewById(R.id.imageViewQRCode);
-            iv.setImageBitmap(bitmap);
+            setImageQR(bitMatrix);
         }
 
         ////// TEXT GENERATION //////
@@ -112,12 +108,75 @@ public class MainActivity extends AppCompatActivity {
         }
         tv.setText(data);
         /* TODO:
-        - Make the text not span to the bottom of the screen
         - Max size is around 1307? So about 1.307kB?
+         */
+        /*
+        tv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //Log.i("QR test", "onText changed: " + s.toString());
+                return;
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                return;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // yeah this sucks for performance. Lets not do this
+                BitMatrix bitMatrix = generateQRCode(s.toString(), screenWidth, screenHeight);
+                if (bitMatrix != null) {
+                    setImageQR(bitMatrix);
+                }
+                //Log.i("QR test", "afterText changed: " + s.toString());
+                return;
+            }
+        });
          */
     }
 
-    String handleSendText(Intent intent) {
+    public void generate_QR(View view) {
+        /*
+        Onclick handler for hiding the keyboard and generating the QR code
+         */
+        TextView tv = findViewById(R.id.qr_subtitle);
+        tv.clearFocus();
+        final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+
+        float screenPercentage = 0.8f;
+        int screenWidth = (int) (getScreenWidth() * screenPercentage);
+        int screenHeight = (int) (getScreenWidth() * screenPercentage);
+        BitMatrix bitMatrix = generateQRCode(tv.getText().toString(), screenWidth, screenHeight);
+        if (bitMatrix != null) {
+            setImageQR(bitMatrix);
+        }
+        Log.i("QR test", "onClick" + view.getId() + " " + R.id.imageViewQRCode);
+    }
+
+    private void setImageQR(BitMatrix bitMatrix) {
+        /*
+        Generates the QR code image from the BitMatrix
+         */
+        int width = bitMatrix.getWidth();
+        int height = bitMatrix.getHeight();
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+            }
+        }
+        ImageView iv = findViewById(R.id.imageViewQRCode);
+        iv.setImageBitmap(bitmap);
+        return;
+    }
+
+    private String handleSendText(Intent intent) {
+        /*
+        Handles text being shared
+         */
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
             return sharedText;
@@ -159,7 +218,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public BitMatrix generateQRCode(String data, int width, int height) {
+    private BitMatrix generateQRCode(String data, int width, int height) {
+        /*
+        Generates the bit matrix for the QR code
+         */
         try {
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
