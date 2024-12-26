@@ -143,13 +143,18 @@ public class MainActivity extends AppCompatActivity {
          */
         TextView tv = findViewById(R.id.qr_subtitle);
         tv.clearFocus();
+        String tvText = tv.getText().toString();
         final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         float screenPercentage = 0.8f;
         int screenWidth = (int) (getScreenWidth() * screenPercentage);
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
-        BitMatrix bitMatrix = generateQRCode(tv.getText().toString(), screenWidth, screenHeight);
+        if (tvText.isEmpty()){
+            Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
+            tvText = getString(R.string.qr_instructions);
+        }
+        BitMatrix bitMatrix = generateQRCode(tvText, screenWidth, screenHeight);
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
         }
