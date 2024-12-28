@@ -62,4 +62,12 @@
             app:autoSizeTextType="uniform" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ListView
+        android:id="@+id/menu_list"
+        android:layout_width="409dp"
+        android:layout_height="89dp"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="236dp" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

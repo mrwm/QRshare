@@ -1,13 +1,19 @@
 package com.wchung.qrshare;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -16,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,6 +37,10 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,6 +49,11 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
+    private BitMatrix bitMatrix = null;
+    private Bitmap bitmap = null;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,12 +109,16 @@ public class MainActivity extends AppCompatActivity {
         float screenPercentage = 0.8f;
         int screenWidth = (int) (getScreenWidth() * screenPercentage);
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
-        BitMatrix bitMatrix = generateQRCode(data, screenWidth, screenHeight);
+        bitMatrix = generateQRCode(data, screenWidth, screenHeight);
         ImageView iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
         }
+
+
+        ////// LONG CLICK //////
+        this.registerForContextMenu(iv);
 
         ////// TEXT GENERATION //////
         TextView tv = findViewById(R.id.qr_subtitle);
@@ -110,31 +130,65 @@ public class MainActivity extends AppCompatActivity {
         /* TODO:
         - Max size is around 1307? So about 1.307kB?
          */
-        /*
-        tv.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //Log.i("QR test", "onText changed: " + s.toString());
-                return;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+
+        //menu.setHeaderTitle("Context Menu");
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_list, menu);
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.copy) {
+            File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_cache.jpg");
+            cacheFile.delete();
+            FileOutputStream fileOutputStream;
+            try {
+                fileOutputStream = new FileOutputStream(cacheFile);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+            byte[] bytearray = byteArrayOutputStream.toByteArray();
+            try {
+                fileOutputStream.write(bytearray);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                fileOutputStream.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                fileOutputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                return;
-            }
+            Uri URI = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", cacheFile);
+            Log.i("QR test", "onClick URI: " + URI);
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                // yeah this sucks for performance. Lets not do this
-                BitMatrix bitMatrix = generateQRCode(s.toString(), screenWidth, screenHeight);
-                if (bitMatrix != null) {
-                    setImageQR(bitMatrix);
-                }
-                //Log.i("QR test", "afterText changed: " + s.toString());
-                return;
-            }
-        });
-         */
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newUri(getContentResolver(), "Image", URI);
+            clipboard.setPrimaryClip(clip);
+
+            Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
+        } else if (itemId == R.id.edit) {
+            Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
+        } else if (itemId == R.id.share) {
+            Toast.makeText(this, R.string.menu_share, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        }
+        return true;
     }
 
     public void generate_QR(View view) {
@@ -154,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
             tvText = getString(R.string.qr_instructions);
         }
-        BitMatrix bitMatrix = generateQRCode(tvText, screenWidth, screenHeight);
+        bitMatrix = generateQRCode(tvText, screenWidth, screenHeight);
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
         }
@@ -167,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
          */
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
@@ -175,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
         }
         ImageView iv = findViewById(R.id.imageViewQRCode);
         iv.setImageBitmap(bitmap);
-        return;
     }
 
     private String handleSendText(Intent intent) {
