@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
@@ -144,14 +145,15 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu_list, menu);
     }
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
         /*
         Handles context menu clicks
          */
 
         // This section takes care of creating and saving the QR code image
         File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_image.jpg");
-        cacheFile.delete();
+        boolean deleted = cacheFile.delete();
+        Log.i("QR test:", "File deleted: " + deleted);
         FileOutputStream fileOutputStream;
         try {
             fileOutputStream = new FileOutputStream(cacheFile);
@@ -309,7 +311,8 @@ public class MainActivity extends AppCompatActivity {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    public void onPause(){
+    @Override
+    protected void onPause(){
         super.onPause();
         finish();
     }
