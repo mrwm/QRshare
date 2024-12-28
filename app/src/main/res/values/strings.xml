@@ -4,7 +4,7 @@
     <string name="unsupported_mimetype">Unsupported mimeType:\ </string>
     <string name="default_start_string">No data shared here.\ </string>
     <string name="qr_code_description">QRshare</string>
-    <string name="qr_instructions">Generate a QR code by sharing a link, contact, or text with QRshare through the android share sheet. \n\nEdit and select text in this box by clicking on the text located in this box.</string>
+    <string name="qr_instructions">Generate a QR code by sharing a link, contact, or text with QRshare through the android share sheet. \n\nGenerate a new QR code by changing text here and tapping the image.</string>
 
     <string name="menu_copy">Copy</string>
     <string name="menu_edit">Edit</string>

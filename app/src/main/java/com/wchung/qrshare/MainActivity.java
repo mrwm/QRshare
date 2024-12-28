@@ -51,8 +51,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
     private BitMatrix bitMatrix = null;
     private Bitmap bitmap = null;
-
-
+    private TextView tv = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         this.registerForContextMenu(iv);
 
         ////// TEXT GENERATION //////
-        TextView tv = findViewById(R.id.qr_subtitle);
+        tv = findViewById(R.id.qr_subtitle);
         TextInputLayout tvh = findViewById(R.id.qr_subtitle_hint);
         if (type != null) {
             tvh.setHint(type);
@@ -134,6 +133,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        /*
+        Creates the context menu
+         */
         super.onCreateContextMenu(menu, view, menuInfo);
 
         //menu.setHeaderTitle("Context Menu");
@@ -143,48 +145,61 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        /*
+        Handles context menu clicks
+         */
 
+        // This section takes care of creating and saving the QR code image
+        File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_image.jpg");
+        cacheFile.delete();
+        FileOutputStream fileOutputStream;
+        try {
+            fileOutputStream = new FileOutputStream(cacheFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] bytearray = byteArrayOutputStream.toByteArray();
+        try {
+            fileOutputStream.write(bytearray);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            fileOutputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            fileOutputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Uri uriForFile = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", cacheFile);
+        //Log.i("QR test: Context copy", "onClick uriForFile: " + uriForFile);
+
+        // Now this is the part that handles the context menu clicks
         int itemId = item.getItemId();
         if (itemId == R.id.copy) {
-            File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_cache.jpg");
-            cacheFile.delete();
-            FileOutputStream fileOutputStream;
-            try {
-                fileOutputStream = new FileOutputStream(cacheFile);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-            byte[] bytearray = byteArrayOutputStream.toByteArray();
-            try {
-                fileOutputStream.write(bytearray);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                fileOutputStream.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                fileOutputStream.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            Uri URI = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", cacheFile);
-            Log.i("QR test", "onClick URI: " + URI);
-
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newUri(getContentResolver(), "Image", URI);
+            ClipData clip = ClipData.newUri(getContentResolver(), "Image", uriForFile);
             clipboard.setPrimaryClip(clip);
 
             Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.edit) {
-            Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
+            tv.requestFocus();
+            //Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.share) {
             Toast.makeText(this, R.string.menu_share, Toast.LENGTH_SHORT).show();
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uriForFile);
+            sendIntent.setType("image/jpg");
+
+            Intent shareIntent = Intent.createChooser(sendIntent, null);
+            startActivity(shareIntent);
         } else {
             Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         }
@@ -195,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
         /*
         Onclick handler for hiding the keyboard and generating the QR code
          */
-        TextView tv = findViewById(R.id.qr_subtitle);
         tv.clearFocus();
         String tvText = tv.getText().toString();
         final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -212,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
         }
-        Log.i("QR test", "onClick" + view.getId() + " " + R.id.imageViewQRCode);
+        //Log.i("QR test: generate_QR", "onClick" + view.getId() + " " + R.id.imageViewQRCode);
     }
 
     private void setImageQR(BitMatrix bitMatrix) {
@@ -287,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
             return new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
-            return null; // Or throw an exception
+            return null;
         }
     }
 
