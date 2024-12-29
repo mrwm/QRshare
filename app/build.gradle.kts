@@ -10,8 +10,8 @@ android {
         applicationId = "com.wchung.qrshare"
         minSdk = 31
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.0.7"
+        versionCode = 10
+        versionName = "1.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
