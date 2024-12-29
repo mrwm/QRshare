@@ -1,0 +1,2 @@
+- tag a release for Fdroid
+- Change `versionName` to kinda match versionCode
