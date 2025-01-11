@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
         /* TODO:
         - Max size is around 1307? So about 1.307kB?
          */
+
+        //View tp = findViewById(R.id.tool_tip);
+        TooltipCompat.setTooltipText(tv, getString(R.string.tool_tip));
     }
 
     @Override

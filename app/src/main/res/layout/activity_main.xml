@@ -20,27 +20,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.3"
         app:srcCompat="@drawable/ic_launcher_foreground" />
-    <!--
-    <TextView
-        android:id="@+id/qr_textsubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="240dp"
-        android:clickable="true"
-        android:descendantFocusability="beforeDescendants"
-        android:enabled="true"
-        android:focusable="true"
-        android:longClickable="true"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:scrollbars="vertical"
-        android:text="@string/qr_code_description"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textIsSelectable="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"/>
-        -->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/qr_subtitle_hint"
@@ -61,13 +40,5 @@
             android:textAlignment="viewStart"
             app:autoSizeTextType="uniform" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <ListView
-        android:id="@+id/menu_list"
-        android:layout_width="409dp"
-        android:layout_height="89dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="236dp" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
