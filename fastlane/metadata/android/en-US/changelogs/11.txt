@@ -1,0 +1,2 @@
+- Add tooltip for instructions when long pressing the text box
+- version bump
