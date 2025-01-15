@@ -29,7 +29,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewQRCode">
+        app:layout_constraintTop_toBottomOf="@+id/imageViewQRCode"
+        app:layout_constraintWidth_max="488dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/qr_subtitle"

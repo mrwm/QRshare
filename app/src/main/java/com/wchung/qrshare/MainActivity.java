@@ -23,11 +23,11 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+//import androidx.appcompat.widget.TooltipCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.zxing.BarcodeFormat;
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
          */
 
         //View tp = findViewById(R.id.tool_tip);
-        TooltipCompat.setTooltipText(tv, getString(R.string.tool_tip));
+        //TooltipCompat.setTooltipText(tv, getString(R.string.tool_tip));
     }
 
     @Override
