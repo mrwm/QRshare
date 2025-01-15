@@ -1,4 +1,4 @@
-A lightweight app to share links, contacts, and text through QR codes. Under 1Mb Download!
+A lightweight app to share links, contacts, and text through QR codes.
 
 <ul>
 <li>Share a link, contact, or text. Then select QRshare to generate a QR code.</li>
