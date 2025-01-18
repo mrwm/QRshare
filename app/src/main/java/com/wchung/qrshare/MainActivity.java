@@ -1,5 +1,7 @@
 package com.wchung.qrshare;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -50,10 +52,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import android.view.MotionEvent;
+import android.view.LayoutInflater;
+import android.widget.PopupWindow;
+
 public class MainActivity extends AppCompatActivity {
     private BitMatrix bitMatrix = null;
     private Bitmap bitmap = null;
     private TextView tv = null;
+    private ImageView iv = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         int screenWidth = (int) (getScreenWidth() * screenPercentage);
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
         bitMatrix = generateQRCode(data, screenWidth, screenHeight);
-        ImageView iv = findViewById(R.id.imageViewQRCode);
+        iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
@@ -148,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
     }
+
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         /*
@@ -196,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.edit) {
             tv.requestFocus();
+            showPopupWindow();
             //Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.share) {
             Toast.makeText(this, R.string.menu_share, Toast.LENGTH_SHORT).show();
@@ -247,7 +256,6 @@ public class MainActivity extends AppCompatActivity {
                 bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
             }
         }
-        ImageView iv = findViewById(R.id.imageViewQRCode);
         iv.setImageBitmap(bitmap);
     }
 
@@ -309,6 +317,41 @@ public class MainActivity extends AppCompatActivity {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
             return null;
         }
+    }
+
+    public void showPopupWindow() {
+        /*
+        Shows the tooltip popup window
+         */
+        //Log.i("showPopupWindow", view.toString());
+
+        // Create a View object yourself through inflater
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_tooltip, null);
+
+        // Specify the length and width through constants
+        int width = WRAP_CONTENT;
+        int height = WRAP_CONTENT;
+
+        // Make Inactive Items Outside Of PopupWindow
+        boolean focusable = true;
+
+        // Create a window with our parameters
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        // Set the popup to underneath the QR code
+        popupWindow.showAsDropDown(iv, 0, -20);
+
+        // Handler for clicking on the inactive zone of the window
+        popupView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                // Close the window when clicked
+                popupWindow.dismiss();
+                return true;
+            }
+        });
     }
 
     public static int getScreenWidth() {
