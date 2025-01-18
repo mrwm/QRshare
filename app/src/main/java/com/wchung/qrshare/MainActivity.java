@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
 
         ////// QR CODE GENERATION //////
         float screenPercentage = 0.8f;
-        int screenWidth = (int) (getScreenWidth() * screenPercentage);
-        int screenHeight = (int) (getScreenWidth() * screenPercentage);
+        int screenWidth = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
+        int screenHeight = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
         bitMatrix = generateQRCode(data, screenWidth, screenHeight);
         iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         // This section takes care of creating and saving the QR code image
         File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_image.jpg");
         boolean deleted = cacheFile.delete();
-        Log.i("QR test:", "File deleted: " + deleted);
+        //Log.i("QR test:", "File deleted: " + deleted);
         FileOutputStream fileOutputStream;
         try {
             fileOutputStream = new FileOutputStream(cacheFile);
@@ -231,8 +231,8 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         float screenPercentage = 0.8f;
-        int screenWidth = (int) (getScreenWidth() * screenPercentage);
-        int screenHeight = (int) (getScreenWidth() * screenPercentage);
+        int screenWidth = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
+        int screenHeight = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
         if (tvText.isEmpty()){
             Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
             tvText = getString(R.string.qr_instructions);
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
         // Set the popup to underneath the QR code
-        popupWindow.showAsDropDown(iv, 0, -20);
+        popupWindow.showAsDropDown(iv, 0, -30);
 
         // Handler for clicking on the inactive zone of the window
         popupView.setOnTouchListener(new View.OnTouchListener() {
@@ -355,7 +355,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static int getScreenWidth() {
-        return Resources.getSystem().getDisplayMetrics().widthPixels;
+        int sizeInDp = 488;
+        float scale = Resources.getSystem().getDisplayMetrics().density;
+        int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        return dpAsPixels; //Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
     @Override

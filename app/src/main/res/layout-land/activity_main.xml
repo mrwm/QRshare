@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity" >
 
     <ImageView
         android:id="@+id/imageViewQRCode"
@@ -29,9 +29,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageViewQRCode"
         app:layout_constraintTop_toBottomOf="@+id/imageViewQRCode"
-        app:layout_constraintWidth_max="488dp">
+        app:layout_constraintWidth_max="488dp" >
         <!--488dp for material guidelines on width of text field-->
 
         <com.google.android.material.textfield.TextInputEditText
