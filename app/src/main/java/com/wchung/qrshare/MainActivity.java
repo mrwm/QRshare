@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
 
         ////// QR CODE GENERATION //////
         float screenPercentage = 0.8f;
-        int screenWidth = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
-        int screenHeight = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
+        int screenWidth = (int) (getScreenWidth() * screenPercentage);
+        int screenHeight = (int) (getScreenWidth() * screenPercentage);
         bitMatrix = generateQRCode(data, screenWidth, screenHeight);
         iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
@@ -231,8 +231,8 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         float screenPercentage = 0.8f;
-        int screenWidth = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
-        int screenHeight = getScreenWidth(); //(int) (getScreenWidth() * screenPercentage);
+        int screenWidth = (int) (getScreenWidth() * screenPercentage);
+        int screenHeight = (int) (getScreenWidth() * screenPercentage);
         if (tvText.isEmpty()){
             Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
             tvText = getString(R.string.qr_instructions);
@@ -355,10 +355,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static int getScreenWidth() {
-        int sizeInDp = 488;
-        float scale = Resources.getSystem().getDisplayMetrics().density;
-        int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
-        return dpAsPixels; //Resources.getSystem().getDisplayMetrics().widthPixels;
+        // maybe... make the QR code the same width as max width of the text box?
+        // It might look more cohesive, but looses the appeal of maxing out the screen width
+        //int sizeInDp = 488;
+        //float scale = Resources.getSystem().getDisplayMetrics().density;
+        //int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
     @Override
