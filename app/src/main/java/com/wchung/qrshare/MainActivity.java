@@ -74,9 +74,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         ////// Intent captures //////
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
+        String action = (String) handleIntent(getIntent())[0];
+        String type = (String) handleIntent(getIntent())[1];
+        Intent intent = (Intent) handleIntent(getIntent())[2];
+        //Intent intent = getIntent();
+        //String action = intent.getAction();
+        //String type = intent.getType();
 
         String data = getString(R.string.qr_instructions);
         String unsupported_mimetype = getString(R.string.unsupported_mimetype);
@@ -363,9 +366,26 @@ public class MainActivity extends AppCompatActivity {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        finish();
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        handleIntent(intent);
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Intent intent = getIntent();
+//        setIntent(intent);
+//        Log.i("QR test", Objects.requireNonNull(intent.getAction()));
+//    }
+//
+    protected Object[] handleIntent(Intent intent) {
+        String action = intent.getAction();
+        String type = intent.getType();
+        assert action != null;
+        Log.i("QR test", action + " " + type);
+        return new Object[] {action, type, intent};
     }
+
 }
