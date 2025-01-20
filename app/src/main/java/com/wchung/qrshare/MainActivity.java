@@ -263,6 +263,10 @@ public class MainActivity extends AppCompatActivity {
         /*
         Handles text being shared
          */
+        if (intent.getStringExtra(Intent.EXTRA_TEXT) == null) {
+            Log.w("QR test: handleSendText", "Intent.EXTRA_TEXT is null");
+            Log.i("QR test: handleSendText", "Intent: " + defaultIntent.toString());
+        }
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
             return sharedText;
