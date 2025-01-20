@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ContentResolver;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         String action = (String) handleIntent(getIntent())[0];
         String type = (String) handleIntent(getIntent())[1];
         Intent defaultIntent = (Intent) handleIntent(getIntent())[2];
-        Log.i("ONCREATE", defaultIntent.toString());
+        //Log.i("ONCREATE", defaultIntent.toString());
         //Intent defaultIntent = getIntent();
         //String action = defaultIntent.getAction();
         //String type = defaultIntent.getType();
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
         bitMatrix = generateQRCode(data, screenWidth, screenHeight);
         iv = findViewById(R.id.imageViewQRCode);
-        iv.setOnClickListener(view -> generate_QR(this.defaultIntent));
+        iv.setOnClickListener(view -> update_QR(this.defaultIntent));
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
         }
@@ -226,9 +227,10 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void generate_QR(Intent intent) {
+    public void update_QR(Intent intent) {
         /*
         Onclick handler for hiding the keyboard and generating the QR code
+        Updates the QR code and text based on the intent passed
          */
         if (tv != null) {
             tv.clearFocus();
@@ -378,8 +380,15 @@ public class MainActivity extends AppCompatActivity {
         // It might look more cohesive, but looses the appeal of maxing out the screen width
         //int sizeInDp = 488;
         //float scale = Resources.getSystem().getDisplayMetrics().density;
-        //int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
-        return Resources.getSystem().getDisplayMetrics().widthPixels;
+        //int dpAsPixels;
+        //dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        float width = Resources.getSystem().getDisplayMetrics().widthPixels;
+        float height = Resources.getSystem().getDisplayMetrics().heightPixels;
+        if (width > height) {
+            // possibly landscape mode?
+            return (int) height;
+        }
+        return (int) width;
     }
 
     @Override
@@ -393,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Intent intent = getIntent();
         //Log.i("OnResume", Objects.requireNonNull(intent.getAction()));
-        handleIntent(intent);
+        //handleIntent(intent); // note to self: don't rerun handle intent again twice...
     }
 
     protected Object[] handleIntent(Intent intent) {
@@ -408,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
             defaultIntent.setType("text/plain");
             intent = defaultIntent;
         }
-        generate_QR(intent);
+        update_QR(intent);
         return new Object[] {action, type, intent};
     }
 
