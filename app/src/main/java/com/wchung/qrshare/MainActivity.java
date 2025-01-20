@@ -368,4 +368,5 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         finish();
     }
+
 }
