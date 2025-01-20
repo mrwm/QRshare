@@ -57,10 +57,11 @@ import android.view.LayoutInflater;
 import android.widget.PopupWindow;
 
 public class MainActivity extends AppCompatActivity {
-    private BitMatrix bitMatrix = null;
-    private Bitmap bitmap = null;
-    private TextView tv = null;
-    private ImageView iv = null;
+    private BitMatrix bitMatrix;
+    private Bitmap bitmap;
+    private TextView tv;
+    private ImageView iv;
+    private Intent defaultIntent = getIntent();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,16 +77,17 @@ public class MainActivity extends AppCompatActivity {
         ////// Intent captures //////
         String action = (String) handleIntent(getIntent())[0];
         String type = (String) handleIntent(getIntent())[1];
-        Intent intent = (Intent) handleIntent(getIntent())[2];
-        //Intent intent = getIntent();
-        //String action = intent.getAction();
-        //String type = intent.getType();
+        Intent defaultIntent = (Intent) handleIntent(getIntent())[2];
+        Log.i("ONCREATE", defaultIntent.toString());
+        //Intent defaultIntent = getIntent();
+        //String action = defaultIntent.getAction();
+        //String type = defaultIntent.getType();
 
         String data = getString(R.string.qr_instructions);
         String unsupported_mimetype = getString(R.string.unsupported_mimetype);
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text".equals(type.split("/")[0])) {
-                data = handleSendText(intent); // Handle text being sent
+                data = handleSendText(defaultIntent); // Handle text being sent
             } else {
                 data = type.split("/")[0];
                 Toast.makeText(getApplicationContext(), unsupported_mimetype + data, Toast.LENGTH_LONG).show();
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             if (type.startsWith("image/")) {
                 data = type;
                 Toast.makeText(getApplicationContext(), unsupported_mimetype + data, Toast.LENGTH_LONG).show();
-                //handleSendMultipleImages(intent); // Handle multiple images being sent
+                //handleSendMultipleImages(defaultIntent); // Handle multiple images being sent
             }
         } else {
             if (type != null){
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
         bitMatrix = generateQRCode(data, screenWidth, screenHeight);
         iv = findViewById(R.id.imageViewQRCode);
-        iv.setOnClickListener(this::generate_QR);
+        iv.setOnClickListener(view -> generate_QR(this.defaultIntent));
         if (bitMatrix != null) {
             setImageQR(bitMatrix);
         }
@@ -224,25 +226,35 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void generate_QR(View view) {
+    public void generate_QR(Intent intent) {
         /*
         Onclick handler for hiding the keyboard and generating the QR code
          */
-        tv.clearFocus();
-        String tvText = tv.getText().toString();
-        final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+        if (tv != null) {
+            tv.clearFocus();
+            String tvText = tv.getText().toString();
+            // Hide the keyboard.
+            final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
-        float screenPercentage = 0.8f;
-        int screenWidth = (int) (getScreenWidth() * screenPercentage);
-        int screenHeight = (int) (getScreenWidth() * screenPercentage);
-        if (tvText.isEmpty()){
-            Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
-            tvText = getString(R.string.qr_instructions);
-        }
-        bitMatrix = generateQRCode(tvText, screenWidth, screenHeight);
-        if (bitMatrix != null) {
-            setImageQR(bitMatrix);
+            float screenPercentage = 0.8f;
+            int screenWidth = (int) (getScreenWidth() * screenPercentage);
+            int screenHeight = (int) (getScreenWidth() * screenPercentage);
+            if (tvText.isEmpty()){
+                Log.i("QR test: generate_QR", "Empty text");
+                Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
+                tvText = getString(R.string.qr_instructions);
+            }
+            else if (intent != null) {
+                Log.i("QR test: generate_QR", intent.toString());
+                // Handle the text on intent
+                tvText = handleSendText(intent);
+                tv.setText(tvText);
+            }
+            bitMatrix = generateQRCode(tvText, screenWidth, screenHeight);
+            if (bitMatrix != null) {
+                setImageQR(bitMatrix);
+            }
         }
         //Log.i("QR test: generate_QR", "onClick" + view.getId() + " " + R.id.imageViewQRCode);
     }
@@ -266,6 +278,10 @@ public class MainActivity extends AppCompatActivity {
         /*
         Handles text being shared
          */
+        if (intent.getStringExtra(Intent.EXTRA_TEXT) == null) {
+            Log.w("QR test: handleSendText", "Intent.EXTRA_TEXT is null");
+            Log.i("QR test: handleSendText", "Intent: " + defaultIntent.toString());
+        }
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
             return sharedText;
@@ -366,25 +382,33 @@ public class MainActivity extends AppCompatActivity {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        super.onNewIntent(intent);
-//        handleIntent(intent);
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        Intent intent = getIntent();
-//        setIntent(intent);
-//        Log.i("QR test", Objects.requireNonNull(intent.getAction()));
-//    }
-//
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        //Log.i("OnResume", Objects.requireNonNull(intent.getAction()));
+        handleIntent(intent);
+    }
+
     protected Object[] handleIntent(Intent intent) {
+        setIntent(intent);
         String action = intent.getAction();
         String type = intent.getType();
         assert action != null;
-        Log.i("QR test", action + " " + type);
+        //Log.i("handleIntent", "action: " + action + " type: " + type + " intent: " + intent);
+        if (intent.getStringExtra(Intent.EXTRA_TEXT) == null) {
+            defaultIntent = new Intent();
+            defaultIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.qr_instructions));
+            defaultIntent.setType("text/plain");
+            intent = defaultIntent;
+        }
+        generate_QR(intent);
         return new Object[] {action, type, intent};
     }
 
