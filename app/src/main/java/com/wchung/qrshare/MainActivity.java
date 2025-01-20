@@ -1,13 +1,10 @@
 package com.wchung.qrshare;
 
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ContentResolver;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -351,8 +348,8 @@ public class MainActivity extends AppCompatActivity {
         View popupView = inflater.inflate(R.layout.popup_tooltip, null);
 
         // Specify the length and width through constants
-        int width = WRAP_CONTENT;
-        int height = WRAP_CONTENT;
+        int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+        int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
         // Make Inactive Items Outside Of PopupWindow
         boolean focusable = true;
@@ -392,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
     }
