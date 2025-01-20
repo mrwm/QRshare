@@ -1,0 +1,4 @@
+- Removed the tooltip from interfering with copy paste options
+- Moved the tooltip to show up after selecting `edit` from the QR code long tap context menu
+- Added landscape mode support
+- Behavior change: don't quit the app after the user leaves the app
