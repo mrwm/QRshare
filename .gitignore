@@ -32,6 +32,6 @@ google-services.json
 # Android Profiling
 *.hprof
 
-# Ignore the otehr files created when making the apk
+# Ignore the other files created when making the apk
 app/release/baselineProfiles/
 app/release/output-metadata.json
