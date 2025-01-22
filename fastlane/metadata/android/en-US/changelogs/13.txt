@@ -1,0 +1,1 @@
+- fix to unbreak the function of generating a new QR code based on the text in the text box

@@ -244,8 +244,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
                 tvText = getString(R.string.qr_instructions);
             }
-            else if (intent != null) {
-                Log.i("QR test: generate_QR", intent.toString());
+            else if ( (intent != null) && (tvText.equals(handleSendText(intent))) ) {
+                Log.i("QR test: generate_QR", String.valueOf((tvText.equals(handleSendText(intent)))));
                 // Handle the text on intent
                 tvText = handleSendText(intent);
                 tv.setText(tvText);
