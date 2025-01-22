@@ -16,9 +16,10 @@ android {
     defaultConfig {
         applicationId = "com.wchung.qrshare"
         minSdk = 31
+        //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 13
-        versionName = "1.0.13"
+        versionCode = 14
+        versionName = "1.0.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

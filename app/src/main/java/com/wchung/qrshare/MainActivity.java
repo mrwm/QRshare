@@ -232,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
         if (tv != null) {
             tv.clearFocus();
             String tvText = tv.getText().toString();
+
             // Hide the keyboard.
             final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
@@ -240,20 +241,30 @@ public class MainActivity extends AppCompatActivity {
             int screenWidth = (int) (getScreenWidth() * screenPercentage);
             int screenHeight = (int) (getScreenWidth() * screenPercentage);
             if (tvText.isEmpty()){
-                Log.i("QR test: generate_QR", "Empty text");
+                Log.i("QR test: update_QR", "Empty text");
                 Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
                 tvText = getString(R.string.qr_instructions);
             }
-            else if ( (intent != null) && (tvText.equals(handleSendText(intent))) ) {
-                Log.i("QR test: generate_QR", String.valueOf((tvText.equals(handleSendText(intent)))));
-                // Handle the text on intent
-                tvText = handleSendText(intent);
-                tv.setText(tvText);
+            else if (tvText.equals(handleSendText(intent))) {
+                Log.i("QR test: update_QR", "intent and text are the same");
             }
+            else if (!tvText.equals(handleSendText(intent))) {
+                Log.i("QR test: update_QR", "Intent is different from text:");
+                Log.i("QR test: update_QR", "text: " + tvText + " intent: " + handleSendText(intent));
+                if (defaultIntent != intent) {
+                    Log.i("QR test: update_QR", "Intent is different from defaultIntent");
+                    tvText = handleSendText(defaultIntent);
+                }
+            }
+            Log.i("QR test: update_QR", "text: " + tvText);
+            tv.setText(tvText);
             bitMatrix = generateQRCode(tvText, screenWidth, screenHeight);
             if (bitMatrix != null) {
                 setImageQR(bitMatrix);
             }
+//            defaultIntent = new Intent();
+//            defaultIntent.putExtra(Intent.EXTRA_TEXT, tvText);
+//            defaultIntent.setType("text/plain");
         }
         //Log.i("QR test: generate_QR", "onClick" + view.getId() + " " + R.id.imageViewQRCode);
     }
@@ -277,9 +288,14 @@ public class MainActivity extends AppCompatActivity {
         /*
         Handles text being shared
          */
+        if (intent == null) {
+            Log.w("QR test: handleSendText", "Intent is null!");
+            return "";
+        }
         if (intent.getStringExtra(Intent.EXTRA_TEXT) == null) {
             Log.w("QR test: handleSendText", "Intent.EXTRA_TEXT is null");
             Log.i("QR test: handleSendText", "Intent: " + defaultIntent.toString());
+            return "";
         }
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
@@ -397,7 +413,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent = getIntent();
+        //Intent intent = getIntent();
+        //Log.i("OnResume", Objects.requireNonNull(intent.getAction()));
+        //handleIntent(intent); // note to self: don't rerun handle intent again twice...
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
+        //Intent intent = getIntent();
         //Log.i("OnResume", Objects.requireNonNull(intent.getAction()));
         //handleIntent(intent); // note to self: don't rerun handle intent again twice...
     }
@@ -413,6 +438,9 @@ public class MainActivity extends AppCompatActivity {
             defaultIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.qr_instructions));
             defaultIntent.setType("text/plain");
             intent = defaultIntent;
+        }
+        else {
+            defaultIntent = intent;
         }
         update_QR(intent);
         return new Object[] {action, type, intent};
