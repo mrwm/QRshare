@@ -1,0 +1,1 @@
+- Stop the app after the user leaves it
