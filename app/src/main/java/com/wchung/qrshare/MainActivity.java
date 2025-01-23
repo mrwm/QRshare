@@ -366,6 +366,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
+        Log.i("onPause", "leaving... bye~!");
         finish();
     }
 
