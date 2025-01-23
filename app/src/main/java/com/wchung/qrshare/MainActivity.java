@@ -2,6 +2,7 @@ package com.wchung.qrshare;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -61,7 +63,10 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap = null;
     private TextView tv = null;
     private ImageView iv = null;
+    private File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_image.jpg");
 
+
+    @SuppressLint("WrongThread")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,9 +125,38 @@ public class MainActivity extends AppCompatActivity {
         bitMatrix = generateQRCode(data, screenWidth, screenHeight);
         iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
-        if (bitMatrix != null) {
-            setImageQR(bitMatrix);
+        // This section takes care of creating and saving the QR code image
+        boolean deleted = cacheFile.delete();
+        //Log.i("QR test:", "File deleted: " + deleted);
+        FileOutputStream fileOutputStream;
+        try {
+            fileOutputStream = new FileOutputStream(cacheFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] bytearray = byteArrayOutputStream.toByteArray();
+        try {
+            fileOutputStream.write(bytearray);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            fileOutputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            fileOutputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        iv.setImageBitmap(bitmap);
+//        if (bitMatrix != null) {
+//            setImageQR(bitMatrix);
+//        }
 
 
         ////// LONG CLICK //////
@@ -162,34 +196,33 @@ public class MainActivity extends AppCompatActivity {
         Handles context menu clicks
          */
 
-        // This section takes care of creating and saving the QR code image
-        File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_image.jpg");
-        boolean deleted = cacheFile.delete();
-        //Log.i("QR test:", "File deleted: " + deleted);
-        FileOutputStream fileOutputStream;
-        try {
-            fileOutputStream = new FileOutputStream(cacheFile);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] bytearray = byteArrayOutputStream.toByteArray();
-        try {
-            fileOutputStream.write(bytearray);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            fileOutputStream.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            fileOutputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        // This section takes care of creating and saving the QR code image
+//        boolean deleted = cacheFile.delete();
+//        //Log.i("QR test:", "File deleted: " + deleted);
+//        FileOutputStream fileOutputStream;
+//        try {
+//            fileOutputStream = new FileOutputStream(cacheFile);
+//        } catch (FileNotFoundException e) {
+//            throw new RuntimeException(e);
+//        }
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+//        byte[] bytearray = byteArrayOutputStream.toByteArray();
+//        try {
+//            fileOutputStream.write(bytearray);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        try {
+//            fileOutputStream.flush();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        try {
+//            fileOutputStream.close();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
         Uri uriForFile = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", cacheFile);
         //Log.i("QR test: Context copy", "onClick uriForFile: " + uriForFile);
@@ -212,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.putExtra(Intent.EXTRA_STREAM, uriForFile);
             sendIntent.setType("image/jpg");
+            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             Intent shareIntent = Intent.createChooser(sendIntent, null);
             startActivity(shareIntent);
@@ -250,8 +284,9 @@ public class MainActivity extends AppCompatActivity {
          */
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, file_output_location);
+        //bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
+        //bitmap.compress(Bitmap.CompressFormat.PNG, 100, file_output_location);
         //for (int x = 0; x < width; x++) {
         //    for (int y = 0; y < height; y++) {
         //        bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
@@ -318,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
             hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             //return new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
-            return new QRCodeWriter().encode("LetmeTestThis", BarcodeFormat.QR_CODE, width, height, hints);
+            return new QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
             return null;
