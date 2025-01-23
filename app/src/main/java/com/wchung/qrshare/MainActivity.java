@@ -37,7 +37,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-//import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import java.io.BufferedReader;
@@ -251,11 +251,12 @@ public class MainActivity extends AppCompatActivity {
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
-            }
-        }
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, file_output_location);
+        //for (int x = 0; x < width; x++) {
+        //    for (int y = 0; y < height; y++) {
+        //        bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+        //    }
+        //}
         iv.setImageBitmap(bitmap);
     }
 
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
          */
         if (intent.getStringExtra(Intent.EXTRA_TEXT) == null) {
             Log.w("QR test: handleSendText", "Intent.EXTRA_TEXT is null");
-            Log.i("QR test: handleSendText", "Intent: " + defaultIntent.toString());
+            Log.i("QR test: handleSendText", "Intent: " + intent.toString());
         }
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
@@ -316,7 +317,8 @@ public class MainActivity extends AppCompatActivity {
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-            return new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
+            //return new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
+            return new QRCodeWriter().encode("LetmeTestThis", BarcodeFormat.QR_CODE, width, height, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
             return null;
