@@ -2,7 +2,6 @@ package com.wchung.qrshare;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -14,6 +13,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
@@ -31,12 +32,10 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-//import androidx.appcompat.widget.TooltipCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
-import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
@@ -58,6 +57,7 @@ import android.view.MotionEvent;
 import android.view.LayoutInflater;
 import android.widget.PopupWindow;
 
+
 public class MainActivity extends AppCompatActivity {
     private BitMatrix bitMatrix = null;
     private Bitmap bitmap = null;
@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView iv = null;
     private File cacheFile;
 
-
-    @SuppressLint("WrongThread")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
 
         cacheFile = new File(getCacheDir(), "QR_image.jpg");
 
@@ -136,44 +133,13 @@ public class MainActivity extends AppCompatActivity {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
             bitMatrix = null;
         }
+
         iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
-
-        // This section takes care of creating and saving the QR code image
-        boolean deleted = cacheFile.delete();
-        //Log.i("QR test:", "File deleted: " + deleted);
-        FileOutputStream fileOutputStream;
-        try {
-            fileOutputStream = new FileOutputStream(cacheFile);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] bytearray = byteArrayOutputStream.toByteArray();
-        try {
-            fileOutputStream.write(bytearray);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            fileOutputStream.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            fileOutputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Log.i("oncreate", "compressed: " + bitmap);
-        //bitMatrix = generateQRCode(data, screenWidth, screenHeight);
-        bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
-
         iv.setImageBitmap(bitmap);
-//        if (bitMatrix != null) {
-//            setImageQR(bitMatrix);
-//        }
+        if (bitMatrix != null) {
+            setImageQR(bitMatrix);
+        }
 
 
         ////// LONG CLICK //////
@@ -192,6 +158,20 @@ public class MainActivity extends AppCompatActivity {
 
         //View tp = findViewById(R.id.tool_tip);
         //TooltipCompat.setTooltipText(tv, getString(R.string.tool_tip));
+
+        tv.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+                Log.i("QR test: afterTextChanged", "onClick" + s.toString());
+                generate_QR(null);
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
+
     }
 
     @Override
@@ -282,8 +262,10 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         float screenPercentage = 0.8f;
-        int screenWidth = (int) (getScreenWidth() * screenPercentage);
-        int screenHeight = (int) (getScreenWidth() * screenPercentage);
+        int screenWidth = 500;
+        int screenHeight = 500;
+//        int screenWidth = (int) (getScreenWidth() * screenPercentage);
+//        int screenHeight = (int) (getScreenWidth() * screenPercentage);
         if (tvText.isEmpty()){
             Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
             tvText = getString(R.string.qr_instructions);
@@ -301,15 +283,19 @@ public class MainActivity extends AppCompatActivity {
          */
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
-        //bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
-        //bitmap.compress(Bitmap.CompressFormat.PNG, 100, file_output_location);
-        //for (int x = 0; x < width; x++) {
-        //    for (int y = 0; y < height; y++) {
-        //        bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
-        //    }
-        //}
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+            }
+        }
         iv.setImageBitmap(bitmap);
+        float screenPercentage = 0.8f;
+        int screenWidth = (int) (getScreenWidth() * screenPercentage);
+        int screenHeight = (int) (getScreenWidth() * screenPercentage);
+
+        iv.getLayoutParams().width = screenWidth;
+        iv.getLayoutParams().height = screenHeight;
     }
 
     private String handleSendText(Intent intent) {
@@ -415,9 +401,9 @@ public class MainActivity extends AppCompatActivity {
     public static int getScreenWidth() {
         // maybe... make the QR code the same width as max width of the text box?
         // It might look more cohesive, but looses the appeal of maxing out the screen width
-        //int sizeInDp = 488;
-        //float scale = Resources.getSystem().getDisplayMetrics().density;
-        //int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        if (Resources.getSystem().getDisplayMetrics().widthPixels > Resources.getSystem().getDisplayMetrics().heightPixels) {
+            return Resources.getSystem().getDisplayMetrics().heightPixels;
+        }
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
