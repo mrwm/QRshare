@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap = null;
     private TextView tv = null;
     private ImageView iv = null;
-    private File cacheFile = new File(getApplicationContext().getCacheDir(), "QR_image.jpg");
+    private File cacheFile;
 
 
     @SuppressLint("WrongThread")
@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+
+        cacheFile = new File(getCacheDir(), "QR_image.jpg");
 
         ////// Intent captures //////
         Intent intent = getIntent();
@@ -122,9 +125,20 @@ public class MainActivity extends AppCompatActivity {
         float screenPercentage = 0.8f;
         int screenWidth = (int) (getScreenWidth() * screenPercentage);
         int screenHeight = (int) (getScreenWidth() * screenPercentage);
-        bitMatrix = generateQRCode(data, screenWidth, screenHeight);
+
+        try {
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            //return new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height, hints);
+            bitMatrix = new QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, screenWidth, screenHeight, hints);
+        } catch (WriterException ex) {
+            Log.e("QRCodeGenerator", "Error generating QR code", ex);
+            bitMatrix = null;
+        }
         iv = findViewById(R.id.imageViewQRCode);
         iv.setOnClickListener(this::generate_QR);
+
         // This section takes care of creating and saving the QR code image
         boolean deleted = cacheFile.delete();
         //Log.i("QR test:", "File deleted: " + deleted);
@@ -135,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] bytearray = byteArrayOutputStream.toByteArray();
         try {
             fileOutputStream.write(bytearray);
@@ -152,6 +166,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        Log.i("oncreate", "compressed: " + bitmap);
+        //bitMatrix = generateQRCode(data, screenWidth, screenHeight);
+        bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
 
         iv.setImageBitmap(bitmap);
 //        if (bitMatrix != null) {
