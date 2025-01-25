@@ -37,6 +37,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
+import com.google.zxing.common.BitArray;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
@@ -49,6 +50,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -75,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        cacheFile = new File(getCacheDir(), "QR_image.jpg");
 
         ////// Intent captures //////
         Intent intent = getIntent();
@@ -258,14 +258,14 @@ public class MainActivity extends AppCompatActivity {
          */
         tv.clearFocus();
         String tvText = tv.getText().toString();
-        final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+//        final InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         float screenPercentage = 0.8f;
-        int screenWidth = 500;
-        int screenHeight = 500;
-//        int screenWidth = (int) (getScreenWidth() * screenPercentage);
-//        int screenHeight = (int) (getScreenWidth() * screenPercentage);
+//        int screenWidth = 5;
+//        int screenHeight = 5;
+        int screenWidth = (int) (getScreenWidth() * screenPercentage);
+        int screenHeight = (int) (getScreenWidth() * screenPercentage);
         if (tvText.isEmpty()){
             Toast.makeText(getApplicationContext(), R.string.default_start_string, Toast.LENGTH_LONG).show();
             tvText = getString(R.string.qr_instructions);
@@ -283,12 +283,26 @@ public class MainActivity extends AppCompatActivity {
          */
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
+//        Log.i("QR test: setImageQR", String.valueOf(bitMatrix));
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+//        for (int x = 0; x < width; x++) {
+//            for (int y = 0; y < height; y++) {
+//                BitArray bitArray = new BitArray();
+//                bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+//            }
+//        }
+
+        int[] rowPixels = new int[width];
+        BitArray row = new BitArray(width);
+        for (int y = 0; y < height; y++) {
+            row = bitMatrix.getRow(y, row);
+//            Log.i("QR test: setImageQR", String.valueOf(row));
+            for (int x = 0; x < width; x++) {
+                rowPixels[x] = row.get(x) ? Color.BLACK : Color.WHITE;
             }
+            bitmap.setPixels(rowPixels, 0, width, 0, y, width, 1);
         }
+
         iv.setImageBitmap(bitmap);
         float screenPercentage = 0.8f;
         int screenWidth = (int) (getScreenWidth() * screenPercentage);
