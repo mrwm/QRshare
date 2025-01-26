@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static float convertDpToPixel(float dp, Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
-                                                    DisplayMetrics.DENSITY_DEFAULT);
+                DisplayMetrics.DENSITY_DEFAULT);
     }
 
     private Bitmap stringToQRcode(String stringForQRcode) {
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 //            Log.i("stringToQRcode", String.valueOf(icon));
 //            isJustLaunched = false;
 //            return icon;
-                stringForQRcode = "https://github.com/mrwm/QRshare";
+            stringForQRcode = "https://github.com/mrwm/QRshare";
         }
         try {
             Map<EncodeHintType, Object> hints = new HashMap<>();
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("getStringFromIntent", "dataUris: " + dataUris);
                     // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
                     Log.w("getStringFromIntent", intent.getParcelableExtra(
-                                            "android.intent.extra.STREAM").toString());
+                            "android.intent.extra.STREAM").toString());
 
                     ContentResolver contentResolver = getContentResolver();
                     try {
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                         // Update UI to reflect multiple images being shared
                     }
                     Toast.makeText(getApplicationContext(), "Unable to parse " +
-                                        intent.getType() + " yet", Toast.LENGTH_LONG).show();
+                            intent.getType() + " yet", Toast.LENGTH_LONG).show();
                     return intentText;
                 }
             } else {
@@ -300,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         } else {
 
         }

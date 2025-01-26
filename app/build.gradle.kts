@@ -16,9 +16,10 @@ android {
     defaultConfig {
         applicationId = "com.wchung.qrshare"
         minSdk = 31
+        //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 11
-        versionName = "1.0.11"
+        versionCode = 14
+        versionName = "1.0.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,10 +35,12 @@ android {
             ndk.debugSymbolLevel = "FULL"
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
 }
 
 dependencies {
