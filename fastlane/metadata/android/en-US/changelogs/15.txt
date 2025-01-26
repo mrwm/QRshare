@@ -1,0 +1,11 @@
+- Rewrite of the app + code cleanup
+- Removal of a couple dependencies to shrink the file size
+- Shrink the size down from 2MB to around 1MB
+- Layout change: Landscape mode and portrait mode works happily with no issues
+    - Rotating the screen will also work with no issues
+- Behavior changes:
+    - Generates a new QR code when the text is changed. No need to tap the image anymore
+    - No longer closes when resizing, leaving, or rotating the app
+- App theme stuff:
+    - App icon also changes with the app theme: dark/light
+    - (the app also works with themed icons on LineageOS)

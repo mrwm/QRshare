@@ -2,6 +2,6 @@ A lightweight app to share links, contacts, and text through QR codes.
 
 <ul>
 <li>Share a link, contact, or text. Then select QRshare to generate a QR code.</li>
-<li>Modify shared text by editing in the text box. Tap the picture to update the QR code.</li>
+<li>Modify shared text by editing in the text box.</li>
 <li>Tap and hold on the picture to copy the QR code to clipboard, edit the text, or share the QR code.</li>
 </ul>

@@ -4,8 +4,6 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="iconColorBackground">@color/white</item>
-        <item name="iconColorForeground">@color/black</item>
     </style>
 
     <style name="Theme.QRShare" parent="Base.Theme.QRShare" />
