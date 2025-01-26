@@ -5,7 +5,7 @@
         <!-- pressed -->
         <shape android:shape="rectangle">
             <!--    <solid android:color="?attr/colorSurface" />-->
-            <stroke android:width="2dp" android:color="?attr/colorPrimary" />
+            <stroke android:width="2dp" android:color="?attr/colorControlHighlight" />
             <corners android:radius="8dp" />
         </shape>
     </item>
@@ -13,7 +13,7 @@
         <!-- focused -->
         <shape android:shape="rectangle">
             <!--    <solid android:color="?attr/colorSurface" />-->
-            <stroke android:width="2dp" android:color="?attr/colorAccent" />
+            <stroke android:width="2dp" android:color="?attr/colorPrimary" />
             <corners android:radius="8dp" />
         </shape>
     </item>
@@ -21,7 +21,7 @@
         <!-- default -->
         <shape android:shape="rectangle">
             <!--    <solid android:color="?attr/colorSurface" />-->
-            <stroke android:width="1dp" android:color="?attr/colorControlHighlight" />
+            <stroke android:width="1dp" android:color="?attr/editTextColor" />
             <corners android:radius="8dp" />
         </shape>
     </item>
