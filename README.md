@@ -36,7 +36,5 @@ Share QR code links using android's share sheet.
 
 ### Images
 
-<description><summary>Promo Screenshots</summary>
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/0.png" style="width:250px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" style="width:250px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" style="width:250px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" style="width:250px;">
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" style="width:500px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" style="width:500px;">
-</description>
