@@ -5,6 +5,7 @@
     <string name="default_start_string">No data shared here.\ </string>
     <string name="qr_code_description">QR share</string>
     <string name="qr_code_textbox_hint">Text content</string>
+    <string name="data_too_large">Data too large</string>
     <string name="qr_instructions">Generate a QR code by sharing a link, contact, or text here, or by changing text here.\n\nPress and hold the QR code to bring up more options</string>
 
     <string name="tool_tip">Tap the image to generate a new QR code</string>

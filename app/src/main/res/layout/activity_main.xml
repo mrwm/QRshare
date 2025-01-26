@@ -18,8 +18,7 @@
         android:contentDescription="@string/qr_code_description"
         app:autoSizeTextType="uniform"
         app:contentDescription="@string/qr_code_description"
-        app:srcCompat="@drawable/ic_launcher_foreground"
-        android:maxWidth="488dp" />
+        app:srcCompat="@drawable/ic_launcher_foreground"/>
 
     <EditText
         android:id="@+id/qr_subtitle"
