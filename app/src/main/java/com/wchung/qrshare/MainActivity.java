@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveBitmapToCache(Bitmap bitmap_image) {
         // Convert the bitmap to a byte array
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap_image.compress(Bitmap.CompressFormat.PNG, 0, byteArrayOutputStream);
+        bitmap_image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] bytearray = byteArrayOutputStream.toByteArray();
 
         // Save the file to the cache
@@ -219,10 +219,12 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         Log.i("onNewIntent", intent.toString());
         Log.i("onNewIntent", Objects.requireNonNull(intent.getAction()));
-        stringForQRcode = getStringFromIntent(getIntent());
+        stringForQRcode = getStringFromIntent(intent);
+        tv.setText(stringForQRcode);
 
-        // create a new QR code from the string
-        // and set the string for the text edit
+        qr_bitmap = stringToQRcode(stringForQRcode);
+        iv.setImageBitmap(qr_bitmap);
+
     }
 
     private void clear_focus(View view){
@@ -235,39 +237,41 @@ public class MainActivity extends AppCompatActivity {
         dataTooLarge = false;
         String intentAction = intent.getAction();
         String intentType = intent.getType();
-        Log.i("getStringFromIntent", "intentAction: " + intentAction);
-        Log.i("getStringFromIntent", "intentType: " + intentType);
-        if (intentAction != null && intentType != null) {
-            Log.i("getStringFromIntent", "hello");
+        String unsupported_mimetype = getString(R.string.unsupported_mimetype);
+        //Log.i("getStringFromIntent", "intentAction: " + intentAction);
+        //Log.i("getStringFromIntent", "intentType: " + intentType);
+
+        String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        //Log.i("getStringFromIntent", "intentText: " + intentText);
+        if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
+            //Log.i("getStringFromIntent", "intentAction and intentType are not null");
             if ("text".equals(intentType.split("/")[0])) {
-                Log.i("getStringFromIntent", "world");
-                String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (intentText == null) {
-                    Bundle dataUris = intent.getExtras();
+                Bundle dataUris = intent.getExtras();
+                intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                if (intentText == null && dataUris != null) {
+                    Log.i("getStringFromIntent", "dataUris: " + dataUris);
                     // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-                    //Log.w("getStringFromIntent", intent.getParcelableExtra(
-                    //        "android.intent.extra.STREAM").toString());
+                    Log.w("getStringFromIntent", intent.getParcelableExtra("android.intent.extra.STREAM").toString());
 
                     ContentResolver contentResolver = getContentResolver();
                     try {
-                        InputStream inputStream = contentResolver.openInputStream(
-                                Objects.requireNonNull(intent.getParcelableExtra(
-                                        "android.intent.extra.STREAM")));
+                        InputStream inputStream = contentResolver.openInputStream(Objects.requireNonNull(intent.getParcelableExtra("android.intent.extra.STREAM")));
                         assert inputStream != null;
                         // Returns the file size in bytes
-                        //Log.i("QR test", "File Size: " + inputStream.available());
+                        //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
                         if (inputStream.available() > 1307) {
-                            //Log.w("QR test", "Data too large to share");
-                            Toast.makeText(this, getString(R.string.data_too_large),
-                                    Toast.LENGTH_LONG).show();
-                            dataTooLarge = true;
+                            //Log.w("getStringFromIntent", "Data too large to share");
+                            Toast.makeText(getApplicationContext(), "Data too large to share", Toast.LENGTH_LONG).show();
                         }
                         BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
                         StringBuilder total = new StringBuilder();
                         for (String line; (line = r.readLine()) != null; ) {
                             total.append(line).append('\n');
                         }
-                        return total.toString();
+                        inputStream.close();
+                        intentText = total.toString();
+                        Log.i("getStringFromIntent", "intentText: " + intentText);
+                        return intentText;
 
                     } catch (IOException e) {
                         // Handle exceptions
@@ -275,22 +279,24 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (dataUris != null) {
-                        Toast.makeText(this, "woah... how did you get here?",
-                                Toast.LENGTH_LONG).show();
+                        intentText = dataUris + " text";
                         // Update UI to reflect multiple images being shared
                     }
-                    Toast.makeText(this, "Unable to parse " + intent.getType() + " yet",
-                            Toast.LENGTH_LONG).show();
-
+                    Toast.makeText(getApplicationContext(), "Unable to parse " + intent.getType() + " yet", Toast.LENGTH_LONG).show();
+                    return intentText;
                 }
-                Log.i("getStringFromIntent", "intentText: " + intentText);
-                return intentText;
             } else {
-                Toast.makeText(this, R.string.unsupported_mimetype
-                        + intentType, Toast.LENGTH_LONG).show();
+                intentType = intentType.split("/")[0];
+                Toast.makeText(getApplicationContext(), unsupported_mimetype + intentType,
+                        Toast.LENGTH_LONG).show();
             }
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
+                Toast.makeText(getApplicationContext(), "Sorry, this action is not supported yet",
+                        Toast.LENGTH_LONG).show();
+        } else {
+
         }
-        return "";
+        return intentText;
     }
 
 
