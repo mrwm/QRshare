@@ -122,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static float convertDpToPixel(float dp, Context context){
-        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
+                                                    DisplayMetrics.DENSITY_DEFAULT);
     }
 
     private Bitmap stringToQRcode(String stringForQRcode) {
@@ -254,17 +255,21 @@ public class MainActivity extends AppCompatActivity {
                 if (intentText == null && dataUris != null) {
                     Log.i("getStringFromIntent", "dataUris: " + dataUris);
                     // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-                    Log.w("getStringFromIntent", intent.getParcelableExtra("android.intent.extra.STREAM").toString());
+                    Log.w("getStringFromIntent", intent.getParcelableExtra(
+                                            "android.intent.extra.STREAM").toString());
 
                     ContentResolver contentResolver = getContentResolver();
                     try {
-                        InputStream inputStream = contentResolver.openInputStream(Objects.requireNonNull(intent.getParcelableExtra("android.intent.extra.STREAM")));
+                        InputStream inputStream = contentResolver.openInputStream(
+                                Objects.requireNonNull(intent.getParcelableExtra(
+                                        "android.intent.extra.STREAM")));
                         assert inputStream != null;
                         // Returns the file size in bytes
                         //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
                         if (inputStream.available() > 1307) {
                             //Log.w("getStringFromIntent", "Data too large to share");
-                            Toast.makeText(getApplicationContext(), getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                         }
                         BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
                         StringBuilder total = new StringBuilder();
@@ -285,7 +290,8 @@ public class MainActivity extends AppCompatActivity {
                         intentText = dataUris + " text";
                         // Update UI to reflect multiple images being shared
                     }
-                    Toast.makeText(getApplicationContext(), "Unable to parse " + intent.getType() + " yet", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Unable to parse " +
+                                        intent.getType() + " yet", Toast.LENGTH_LONG).show();
                     return intentText;
                 }
             } else {
@@ -294,14 +300,13 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
-                Toast.makeText(getApplicationContext(), "Sorry, this action is not supported yet",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),
+                        getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         } else {
 
         }
         return intentText;
     }
-
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view,
@@ -313,7 +318,6 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
     }
-
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {

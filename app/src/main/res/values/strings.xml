@@ -1,11 +1,16 @@
 <resources>
+    <!-- Strings -->
     <string name="app_name">QR share</string>
     <string name="app_intent_filter_description">Share as QR</string>
-    <string name="unsupported_mimetype">Unsupported mimeType:\ </string>
     <string name="qr_code_description">QR share</string>
-    <string name="data_too_large">Data too large</string>
     <string name="qr_instructions">Generate a QR code by sharing a link, contact, or text here, or by changing text here.\n\nPress and hold the QR code to bring up more options</string>
 
+    <!-- Errors -->
+    <string name="unsupported_mimetype">Unsupported mimeType:\ </string>
+    <string name="data_too_large">Data too large</string>
+    <string name="multi_share_not_supported">Sharing multiple items with QR is not supported yet</string>
+
+    <!-- Menu -->
     <string name="menu_copy">Copy</string>
     <string name="menu_edit">Edit</string>
     <string name="menu_share">Share</string>
