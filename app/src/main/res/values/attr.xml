@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Base.Theme.QRShare">
+        <attr name="iconColorForeground" format="color" />
+        <attr name="iconColorBackground" format="color" />
+    </declare-styleable>
+</resources>

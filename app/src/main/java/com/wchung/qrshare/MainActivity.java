@@ -59,7 +59,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
+        Log.i("QR test: onNewIntent", intent.toString());
         stringForQRcode = getStringFromIntent(getIntent());
+        Log.i("QR test: stringForQRcode", stringForQRcode);
 
         // create a new QR code from the string
         // and set the string for the text edit
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null && Intent.ACTION_SEND == intentAction && intentType != null) {
             if ("text".equals(intentType.split("/")[0])) {
                 String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                //Log.i("QR test: getStringFromIntent", "intentText: " + intentText);
+                Log.i("QR test: getStringFromIntent", "intentText: " + intentText);
                 return intentText;
             } else {
                 Toast.makeText(getApplicationContext(), R.string.unsupported_mimetype
