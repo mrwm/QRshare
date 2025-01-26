@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -48,6 +50,23 @@ public class Rework extends AppCompatActivity {
 
         // Then create a function that handles text changes and updates the QR code
 
+
+        tv = findViewById(R.id.qr_subtitle);
+        iv = findViewById(R.id.imageViewQRCode);
+        iv.setOnClickListener(this::hide_keyboard);
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        stringForQRcode = getStringFromIntent(getIntent());
+
+        // create a new QR code from the string
+        // and set the string for the text edit
+    }
+
+    private void hide_keyboard(View view){
+        tv.clearFocus();
     }
 
     private String getStringFromIntent(Intent intent) {

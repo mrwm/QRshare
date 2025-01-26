@@ -3,14 +3,10 @@
 
     <item
         android:top="8dp" >
-        <shape
-            android:shape="rectangle">
-            <solid
-                android:color="?attr/colorOnSecondary" />
-            <corners
-                android:radius="8dp" />
-            <padding
-            android:top="8dp" />
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorOnSecondary" />
+            <corners android:radius="8dp" />
+            <padding android:top="8dp" />
         </shape>
     </item>
 

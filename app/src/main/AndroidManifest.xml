@@ -22,8 +22,7 @@
 
         <activity
             android:name=".Rework"
-            android:exported="true"
-            android:windowSoftInputMode="adjustPan" >
+            android:exported="true" >
             <!--
             android:launchMode="singleTask"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode|locale" -->
