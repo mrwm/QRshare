@@ -18,7 +18,8 @@
         android:contentDescription="@string/qr_code_description"
         app:autoSizeTextType="uniform"
         app:contentDescription="@string/qr_code_description"
-        app:srcCompat="@drawable/ic_launcher_foreground" />
+        app:srcCompat="@drawable/ic_launcher_foreground"
+        android:maxWidth="488dp" />
 
     <EditText
         android:id="@+id/qr_subtitle"
@@ -32,6 +33,7 @@
         android:inputType="text|textAutoComplete|textAutoCorrect|textEnableTextConversionSuggestions|textImeMultiLine|textMultiLine"
         android:padding="8dp"
         android:textAlignment="viewStart"
-        app:autoSizeTextType="uniform" />
+        app:autoSizeTextType="uniform"
+        android:maxWidth="488dp" />
 
 </LinearLayout>
