@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-//import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         iv.setImageBitmap(qr_bitmap);
         // Set the margins of the image view
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-        int marginPxToDp = (int) convertDpToPixel(16, getApplicationContext());
+        int marginPxToDp = (int) convertDpToPixel(32, getApplicationContext());
         lp.setMargins(marginPxToDp, marginPxToDp, marginPxToDp, marginPxToDp);
         iv.setLayoutParams(lp);
 
@@ -224,7 +223,11 @@ public class MainActivity extends AppCompatActivity {
 
         qr_bitmap = stringToQRcode(stringForQRcode);
         iv.setImageBitmap(qr_bitmap);
-
+        // Set the margins of the image view
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
+        int marginPxToDp = (int) convertDpToPixel(32, getApplicationContext());
+        lp.setMargins(marginPxToDp, marginPxToDp, marginPxToDp, marginPxToDp);
+        iv.setLayoutParams(lp);
     }
 
     private void clear_focus(View view){
@@ -261,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                         //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
                         if (inputStream.available() > 1307) {
                             //Log.w("getStringFromIntent", "Data too large to share");
-                            Toast.makeText(getApplicationContext(), "Data too large to share", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                         }
                         BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
                         StringBuilder total = new StringBuilder();
@@ -270,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         inputStream.close();
                         intentText = total.toString();
-                        Log.i("getStringFromIntent", "intentText: " + intentText);
+                        //Log.i("getStringFromIntent", "intentText: " + intentText);
                         return intentText;
 
                     } catch (IOException e) {
@@ -342,6 +345,5 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         }
         return true;
-
     }
 }
