@@ -26,6 +26,7 @@ android {
 
     buildTypes {
         release {
+            isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -45,9 +46,7 @@ android {
 dependencies {
 
     implementation(libs.appcompat)
-    implementation(libs.material)
     implementation(libs.activity)
-    implementation(libs.constraintlayout)
     implementation(libs.ui.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
