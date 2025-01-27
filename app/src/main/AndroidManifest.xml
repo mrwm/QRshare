@@ -41,12 +41,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".draft"
-            android:launchMode="singleInstance"
-            android:noHistory="true"
-            android:exported="true">
-        </activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.wchung.qrshare;
 
+import android.app.assist.AssistContent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
@@ -360,5 +361,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         }
         return true;
+    }
+
+    // ref: https://developer.android.com/guide/components/activities/recents
+    @Override
+    public void onProvideAssistContent(AssistContent outContent) {
+        super.onProvideAssistContent(outContent);
+        if (stringForQRcode == null) {
+            stringForQRcode = getString(R.string.no_data);
+        }
+        outContent.setWebUri(Uri.parse(stringForQRcode));
     }
 }
