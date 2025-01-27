@@ -53,9 +53,9 @@ import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Bitmap qr_bitmap = null;
-    private TextView tv = null;
-    private ImageView iv = null;
+    private Bitmap qr_bitmap;
+    private TextView tv;
+    private ImageView iv;
     private File cacheFile;
     private String stringForQRcode;
     private boolean dataTooLarge;
@@ -121,31 +121,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public static float convertDpToPixel(float dp, Context context){
+    public static float convertDpToPixel(float dp, @NonNull Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
                 DisplayMetrics.DENSITY_DEFAULT);
     }
 
     private Bitmap stringToQRcode(String stringForQRcode) {
+        String no_data = getString(R.string.no_data);
         int qrSize  = 500;
         float multiplier = 1f; // Kinda like a resolution scaling factor
-        if (Resources.getSystem().getDisplayMetrics().widthPixels >
-                Resources.getSystem().getDisplayMetrics().heightPixels) {
-            qrSize = Resources.getSystem().getDisplayMetrics().heightPixels;
-        } else {
-            qrSize = Resources.getSystem().getDisplayMetrics().widthPixels;
-        }
+        qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
+                            Resources.getSystem().getDisplayMetrics().heightPixels);
         qrSize = (int) (qrSize * multiplier);
         //Log.i("stringToQRcode", "qrSize: " + qrSize);
 
-        BitMatrix bitMatrix = null;
-        Bitmap bitmap_image = null;
+        BitMatrix bitMatrix;
+        Bitmap bitmap_image;
+
+        if (stringForQRcode != null) {
+            int stringLength = stringForQRcode.length();
+            //Log.i("stringToQRcode", "stringLength: " + stringLength);
+            // 1273 chars is the largest possible string length
+            dataTooLarge = (stringLength > 1272);
+        }
         if (dataTooLarge) {
             stringForQRcode = getString(R.string.data_too_large);
+            Log.i("stringToQRcode", "stringForQRcode is too large");
         }
         if (stringForQRcode == null){
             Log.i("stringToQRcode", "stringForQRcode is null");
-            stringForQRcode = "https://github.com/mrwm/QRshare";
+            stringForQRcode = no_data;
         }
         if (stringForQRcode.isEmpty() || stringForQRcode.isBlank()) {
             Log.i("stringToQRcode", "stringForQRcode is empty");
@@ -156,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
 //            Log.i("stringToQRcode", String.valueOf(icon));
 //            isJustLaunched = false;
 //            return icon;
-            stringForQRcode = "https://github.com/mrwm/QRshare";
+            stringForQRcode = no_data;
         }
         try {
             Map<EncodeHintType, Object> hints = new HashMap<>();
@@ -166,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     BarcodeFormat.QR_CODE, qrSize, qrSize, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
+            Toast.makeText(getApplicationContext(), "Error generating QR code", Toast.LENGTH_LONG).show();
             return null;
         }
 
@@ -184,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         return bitmap_image;
     }
 
-    private void saveBitmapToCache(Bitmap bitmap_image) {
+    private void saveBitmapToCache(@NonNull Bitmap bitmap_image) {
         // Convert the bitmap to a byte array
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap_image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
@@ -242,11 +248,11 @@ public class MainActivity extends AppCompatActivity {
         String intentAction = intent.getAction();
         String intentType = intent.getType();
         String unsupported_mimetype = getString(R.string.unsupported_mimetype);
-        //Log.i("getStringFromIntent", "intentAction: " + intentAction);
-        //Log.i("getStringFromIntent", "intentType: " + intentType);
+        Log.i("getStringFromIntent", "intentAction: " + intentAction);
+        Log.i("getStringFromIntent", "intentType: " + intentType);
 
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        //Log.i("getStringFromIntent", "intentText: " + intentText);
+        Log.i("getStringFromIntent", "intentText: " + intentText);
         if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
             //Log.i("getStringFromIntent", "intentAction and intentType are not null");
             if ("text".equals(intentType.split("/")[0])) {
@@ -284,11 +290,6 @@ public class MainActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         // Handle exceptions
                         Log.e("StreamProcessing", "Error accessing stream data", e);
-                    }
-
-                    if (dataUris != null) {
-                        intentText = dataUris + " text";
-                        // Update UI to reflect multiple images being shared
                     }
                     Toast.makeText(getApplicationContext(), "Unable to parse " +
                             intent.getType() + " yet", Toast.LENGTH_LONG).show();
@@ -343,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
             sendIntent.setType("image/jpg");
             sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            Intent shareIntent = Intent.createChooser(sendIntent, null);
+            Intent shareIntent = Intent.createChooser(sendIntent, "Share QR code using");
             startActivity(shareIntent);
         } else {
             Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();

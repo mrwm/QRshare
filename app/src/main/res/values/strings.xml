@@ -4,6 +4,7 @@
     <string name="app_intent_filter_description">Share as QR</string>
     <string name="qr_code_description">QR share</string>
     <string name="qr_instructions">Generate a QR code by sharing a link, contact, or text here, or by changing text here.\n\nPress and hold the QR code to bring up more options</string>
+    <string name="no_data">https://github.com/mrwm/QRshare</string>
 
     <!-- Errors -->
     <string name="unsupported_mimetype">Unsupported mimeType:\ </string>
