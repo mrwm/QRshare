@@ -21,6 +21,15 @@ Share QR code links using android's share sheet.
 
 ---
 
+### Features:
+- Dark and Light theme support
+- Landscape + Portrait mode support
+- Lightweight in size: ~1Mb in download + Bloat free!
+- No ads
+- Low memory usage: Will not spam the Recents screen (aka Overview)
+- ~~Scanning~~
+  - QR code scanning will not be added to keep the app lightweight
+
 ### Usage:
 - Opening the app:
   - Open any app > Click share > Select QRshare in the share sheet
@@ -28,8 +37,6 @@ Share QR code links using android's share sheet.
   - Or open the app from the app launcher
 - Tap on the text box to edit or add text. The QR code will automatically update when the text changes
 - Press and hold on the image to bring up options to copy the image to clipboard, or share the QR code to another app
-- QR code Scanning:
-  - To keep things simple, QR code scanning will not be added.
 
 <details><summary><h3>Use cases:</h3></summary>
   
