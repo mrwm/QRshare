@@ -20,21 +20,6 @@
         app:contentDescription="@string/qr_code_description"
         app:srcCompat="@drawable/ic_launcher_foreground"/>
 
-<!--    <EditText-->
-<!--        android:id="@+id/qr_subtitle"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_weight="1"-->
-<!--        android:layout_margin="8dp"-->
-<!--        android:background="@drawable/textedit_background"-->
-<!--        android:gravity="start"-->
-<!--        android:hint="@string/qr_instructions"-->
-<!--        android:inputType="text|textAutoComplete|textAutoCorrect|textEnableTextConversionSuggestions|textImeMultiLine|textMultiLine"-->
-<!--        android:padding="8dp"-->
-<!--        android:textAlignment="viewStart"-->
-<!--        app:autoSizeTextType="uniform"-->
-<!--        android:maxWidth="488dp" />-->
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -20,18 +20,44 @@
         app:contentDescription="@string/qr_code_description"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
-    <EditText
-        android:id="@+id/qr_subtitle"
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:layout_margin="8dp"
-        android:background="@drawable/textedit_background"
-        android:gravity="start"
-        android:hint="@string/qr_instructions"
-        android:inputType="text|textAutoComplete|textAutoCorrect|textEnableTextConversionSuggestions|textImeMultiLine|textMultiLine"
-        android:padding="8dp"
-        android:textAlignment="viewStart"
-        app:autoSizeTextType="uniform" />
+        tools:context=".draft">
+
+        <EditText
+            android:id="@+id/qr_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:background="@drawable/textedit_background"
+            android:gravity="start"
+            android:hint="@string/qr_instructions"
+            android:inputType="text|textAutoComplete|textAutoCorrect|textEnableTextConversionSuggestions|textImeMultiLine|textMultiLine"
+            android:padding="24dp"
+            android:textAlignment="viewStart"
+            android:autoSizeTextType="uniform"
+            android:maxWidth="488dp"
+            app:autoSizeTextType="uniform"
+            tools:ignore="Autofill" />
+        <TextView
+            android:id="@+id/qr_subtitle_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="-8dp"
+            android:background="?android:windowBackground"
+            android:contentDescription="@string/qr_code_description"
+            android:padding="8dp"
+            android:text="@string/app_name"
+            android:textColor="?colorPrimary"
+            app:autoSizeTextType="uniform"
+            app:contentDescription="@string/qr_code_description" />
+
+    </FrameLayout>
 
 </LinearLayout>

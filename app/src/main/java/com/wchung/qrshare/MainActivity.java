@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private File cacheFile;
     private String stringForQRcode;
     private boolean dataTooLarge;
-    private String stringType = "text/plain";
+    private String stringType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,11 +103,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         TextView tvt = findViewById(R.id.qr_subtitle_type);
-        tvt.setText(stringType);
 
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
         tv.setText(stringForQRcode);
+        tvt.setText(stringType);
+        Log.i("onCreate", "stringType: " + stringType);
 
         // Update the QR code when the text is changed
         tv.addTextChangedListener(new TextWatcher() {
