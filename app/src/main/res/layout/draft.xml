@@ -21,18 +21,22 @@
         android:textAlignment="viewStart"
         app:autoSizeTextType="uniform"
         android:maxWidth="488dp" />
-    <!-- Maybe: Create an animation similar to material textedit to move the text to the top -->
+    <!--
+    Maybe: Create an animation similar to material textedit to move the text to the top...
+    Seems like it might blow up the file size though, so I might just leave it out
+     -->
     <TextView
         android:id="@+id/imageViewQRCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start|top"
         android:layout_marginStart="24dp"
-        android:background="@color/black"
+        android:layout_marginTop="-8dp"
+        android:background="?android:windowBackground"
         android:contentDescription="@string/qr_code_description"
         android:padding="8dp"
         android:text="@string/app_name"
-        android:textColor="@color/white"
+        android:textColor="?colorPrimary"
         app:autoSizeTextType="uniform"
         app:contentDescription="@string/qr_code_description" />
 

@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private File cacheFile;
     private String stringForQRcode;
     private boolean dataTooLarge;
+    private String stringType = "text/plain";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +101,10 @@ public class MainActivity extends AppCompatActivity {
         // Open a menu when long pressing the image
         this.registerForContextMenu(iv);
 
+
+        TextView tvt = findViewById(R.id.qr_subtitle_type);
+        tvt.setText(stringType);
+
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
         tv.setText(stringForQRcode);
@@ -112,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 stringForQRcode = s.toString();
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
+                tvt.setText(stringType);
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -223,8 +229,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        Log.i("onNewIntent", intent.toString());
-        Log.i("onNewIntent", Objects.requireNonNull(intent.getAction()));
+        //Log.i("onNewIntent", intent.toString());
+        //Log.i("onNewIntent", Objects.requireNonNull(intent.getAction()));
         stringForQRcode = getStringFromIntent(intent);
         tv.setText(stringForQRcode);
 
@@ -253,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
 
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
         Log.i("getStringFromIntent", "intentText: " + intentText);
+        stringType = intentType;
         if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
             //Log.i("getStringFromIntent", "intentAction and intentType are not null");
             if ("text".equals(intentType.split("/")[0])) {
@@ -304,7 +311,9 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         } else {
-
+            //Toast.makeText(getApplicationContext(),
+            //        "Woah, how did you get here?", Toast.LENGTH_LONG).show();
+            stringType = getString(R.string.app_name);
         }
         return intentText;
     }
