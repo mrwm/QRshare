@@ -21,7 +21,18 @@ Share QR code links using android's share sheet.
 
 ---
 
-### Use cases:
+### Usage:
+- Opening the app:
+  - Open any app > Click share > Select QRshare in the share sheet
+  - Copy any text > Click the share icon on the android copy dialogue > Select QRshare in the share sheet
+  - Or open the app from the app launcher
+- Tap on the text box to edit or add text. The QR code will automatically update when the text changes
+- Press and hold on the image to bring up options to copy the image to clipboard, or share the QR code to another app
+- QR code Scanning:
+  - To keep things simple, QR code scanning will not be added.
+
+<details><summary><h3>Use cases:</h3></summary>
+  
 - Sharing links quickly. 
   - eg:
     - Sharing app links for profiles: Instagram / Vemo / Whatsapp / Telegram / etc.
@@ -31,8 +42,7 @@ Share QR code links using android's share sheet.
 - Sharing text files
   - File manager > Share > QRshare
 
-### QR code scanning:
-- To keep things simple, QR code scanning will not be added.
+</details>
 
 ### Images
 
