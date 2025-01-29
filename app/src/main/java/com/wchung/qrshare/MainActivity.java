@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         // The wild mess to programmatically create a TextView :)
         subtitleHint = new TextView(this);
         subtitleHint.setId(View.generateViewId());
-        subtitleHint.setText(stringType);
+        subtitleHint.setText(getString(R.string.qr_instructions));
         TypedValue windowBackground = new TypedValue();
         this.getTheme().resolveAttribute(android.R.attr.windowBackground, windowBackground, true);
         subtitleHint.setBackground(ContextCompat.getDrawable(this, windowBackground.resourceId));
@@ -140,11 +141,12 @@ public class MainActivity extends AppCompatActivity {
         subtitleHint.setLayoutParams(layoutParams);
         ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) subtitleHint.getLayoutParams();
         final int dp8 = (int) convertDpToPixel(8, this);
-        marginLayoutParams.setMargins(dp8 * 3, dp8*2, dp8, dp8);
+        final int dp2 = (int) convertDpToPixel(2, this);
+        marginLayoutParams.setMargins(dp8 * 2, dp8, dp8, dp8);
         subtitleHint.setLayoutParams(marginLayoutParams);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
-        subtitleHint.setPadding(dp8, dp8, dp8, dp8);
-
+        subtitleHint.setPadding(dp8, dp8, dp8, 0);
+        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
         // Update the QR code when the text is changed
         tv.addTextChangedListener(new TextWatcher() {
@@ -164,26 +166,32 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        // Animate layout chage for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             Log.i("onFocusChange", "hasFocus: " + hasFocus);
             if(hasFocus) {
+                if (tv.getText() == null || tv.getText().length() == 0) {
+                    subtitleHint.setText(getString(R.string.app_name));
+                }
 
                 layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
                 layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
-                marginLayoutParams.setMargins(dp8 * 3, -dp8, dp8, dp8);
+                marginLayoutParams.setMargins(dp8 * 2, -dp8-dp2, dp8, dp8);
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 subtitleHint.setLayoutParams(marginLayoutParams);
                 subtitleHint.setLayoutParams(layoutParams);
 
             } else {
+                if (tv.getText() == null || tv.getText().length() == 0) {
+                    subtitleHint.setText(getString(R.string.qr_instructions));
 
-                layoutParams.width  = FrameLayout.LayoutParams.MATCH_PARENT;
-                layoutParams.height = FrameLayout.LayoutParams.MATCH_PARENT;
-                marginLayoutParams.setMargins(dp8 * 3, dp8*2, dp8*2, dp8*2);
-                TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                subtitleHint.setLayoutParams(marginLayoutParams);
-                subtitleHint.setLayoutParams(layoutParams);
-
+                    layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
+                    layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
+                    marginLayoutParams.setMargins(dp8 * 2, dp8*2, dp8, dp8);
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    subtitleHint.setLayoutParams(marginLayoutParams);
+                    subtitleHint.setLayoutParams(layoutParams);
+                }
             }
         });
 
@@ -191,6 +199,8 @@ public class MainActivity extends AppCompatActivity {
         // Get the root view and create a transition.
         rootView = findViewById(R.id.frame_layout);
         autoTransition = new AutoTransition();
+        autoTransition.setDuration(50);
+
         if (tv.getText() == null || tv.getText().length() == 0) {
             // Create a new TextView.
             // Start recording changes to the view hierarchy.

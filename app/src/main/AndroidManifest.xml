@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission
+        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        tools:node="remove" />
+        <!-- Removing DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION -->
 
     <application
         android:allowBackup="true"
@@ -24,8 +29,6 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
-            <!--
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode|locale" -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
