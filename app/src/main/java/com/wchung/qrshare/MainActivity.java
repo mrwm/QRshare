@@ -13,11 +13,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.transition.Fade;
+import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +32,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -61,12 +64,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv;
     private ImageView iv;
     private File cacheFile;
+    private String stringType;
     private String stringForQRcode;
     private boolean dataTooLarge;
-    private String stringType;
 
-    private TextView labelText;
-    private Fade mFade;
+    private TextView subtitleHint;
+    private AutoTransition autoTransition;
     private ViewGroup rootView;
 
     @Override
@@ -99,40 +102,58 @@ public class MainActivity extends AppCompatActivity {
         iv.setImageBitmap(qr_bitmap);
         // Set the margins of the image view
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-        int marginPxToDp = (int) convertDpToPixel(32, getApplicationContext());
-        lp.setMargins(marginPxToDp, marginPxToDp, marginPxToDp, marginPxToDp);
+        final int dp32 = (int) convertDpToPixel(32, this);
+        lp.setMargins(dp32, dp32, dp32, dp32);
         iv.setLayoutParams(lp);
 
         // Clear the focus when the image view is tapped. Just a pretty touch effect
-        iv.setOnClickListener(this::clear_focus);
+        iv.setOnClickListener(view -> {
+            tv.clearFocus();
+        });
 
         // Open a menu when long pressing the image
         this.registerForContextMenu(iv);
 
 
-        //TextView tvt = findViewById(R.id.qr_subtitle_type);
-
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
+        //TextView tvt = findViewById(R.id.qr_subtitle_type);
         tv.setText(stringForQRcode);
         //tvt.setText(stringType);
-        Log.i("onCreate", "stringType: " + stringType);
+        //Log.i("onCreate", "stringType: " + stringType);
+
+        subtitleHint = new TextView(this);
+        subtitleHint.setId(View.generateViewId());
+        subtitleHint.setText(stringType);
+        TypedValue windowBackground = new TypedValue();
+        this.getTheme().resolveAttribute(android.R.attr.windowBackground, windowBackground, true);
+        subtitleHint.setBackground(ContextCompat.getDrawable(this, windowBackground.resourceId));
+        TypedValue colorPrimary = new TypedValue();
+        this.getTheme().resolveAttribute(android.R.attr.windowBackground, colorPrimary, true);
+        subtitleHint.setBackground(ContextCompat.getDrawable(this, colorPrimary.resourceId));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        subtitleHint.setLayoutParams(params);
+        ViewGroup.MarginLayoutParams lp2 = (ViewGroup.MarginLayoutParams) subtitleHint.getLayoutParams();
+        final int dp8 = (int) convertDpToPixel(8, this);
+        lp2.setMargins(dp8 * 3, -dp8, dp8, dp8);
+        subtitleHint.setLayoutParams(lp2);
+        subtitleHint.setGravity(Gravity.TOP | Gravity.START);
+        subtitleHint.setPadding(dp8, dp8, dp8, dp8);
+
 
         // Update the QR code when the text is changed
         tv.addTextChangedListener(new TextWatcher() {
 
             public void afterTextChanged(Editable s) {
-//                Log.i("afterTextChanged", "string: " + s.toString());
+                //Log.i("afterTextChanged", "string: " + s.toString());
                 stringForQRcode = s.toString();
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
                 //tvt.setText(stringType);
-
-
-                // Start recording changes to the view hierarchy.
-                TransitionManager.beginDelayedTransition(rootView, mFade);
-                // Add the new TextView to the view hierarchy.
-                rootView.addView(labelText);
+                subtitleHint.setText(stringType);
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -141,18 +162,57 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        labelText = new TextView(this);
-        labelText.setText("test");
-        labelText.setId(View.generateViewId());
+        tv.setOnFocusChangeListener((v, hasFocus) -> {
+            Log.i("onFocusChange", "hasFocus: " + hasFocus);
+            if(hasFocus) {
+                if ((tv.getText() == null || tv.getText().length() == 0) && subtitleHint.getParent() == null) {
+                    // Create a new TextView.
+                    // Start recording changes to the view hierarchy.
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    // Add the new TextView to the view hierarchy.
+                    rootView.addView(subtitleHint);
+                }
+                else {
+                    // Start recording changes to the view hierarchy.
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    // Remove the TextView from the view hierarchy.
+                    rootView.removeView(subtitleHint);
+                }
+            } else {
+                if ((tv.getText() == null || tv.getText().length() == 0) && subtitleHint.getParent() == null) {
+                    // Create a new TextView.
+                    // Start recording changes to the view hierarchy.
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    // Add the new TextView to the view hierarchy.
+                    rootView.addView(subtitleHint);
+                }
+                else {
+                    // Start recording changes to the view hierarchy.
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    // Remove the TextView from the view hierarchy.
+                    rootView.removeView(subtitleHint);
+                }
+            }
+        });
+
+        // Subtitle hint for the text type
         // Get the root view and create a transition.
-        rootView = (ViewGroup) findViewById(R.id.frame_layout);
-        mFade = new Fade(Fade.IN);
-
-
-
-        // When the system redraws the screen to show this update,
-        // the framework animates the addition as a fade in.
-
+        rootView = findViewById(R.id.frame_layout);
+        autoTransition = new AutoTransition();
+        if (tv.getText() == null || tv.getText().length() == 0) {
+            // Create a new TextView.
+            // Start recording changes to the view hierarchy.
+            TransitionManager.beginDelayedTransition(rootView, autoTransition);
+            // Add the new TextView to the view hierarchy.
+            Log.i("onFocusChange", "3. view added");
+            rootView.addView(subtitleHint);
+        } else {
+            // Start recording changes to the view hierarchy.
+            TransitionManager.beginDelayedTransition(rootView, autoTransition);
+            // Remove the TextView from the view hierarchy.
+            Log.i("onFocusChange", "3. view removed");
+            rootView.removeView(subtitleHint);
+        }
 
     }
 
@@ -191,11 +251,11 @@ public class MainActivity extends AppCompatActivity {
             Log.i("stringToQRcode", "stringForQRcode is empty");
             // For some reason, bitmaps from R drawables only work on first launch of the activity
             // After the first launch, it will continue to return null. >:/
-//            Bitmap icon = BitmapFactory.decodeResource(getResources(),
-//                    R.drawable.ic_launcher_foreground);
-//            Log.i("stringToQRcode", String.valueOf(icon));
-//            isJustLaunched = false;
-//            return icon;
+            //Bitmap icon = BitmapFactory.decodeResource(getResources(),
+            //        R.drawable.ic_launcher_foreground);
+            //Log.i("stringToQRcode", String.valueOf(icon));
+            //isJustLaunched = false;
+            //return icon;
             stringForQRcode = no_data;
         }
         try {
@@ -272,12 +332,6 @@ public class MainActivity extends AppCompatActivity {
         iv.setLayoutParams(lp);
     }
 
-    private void clear_focus(View view){
-        //String tvText = tv.getText().toString();
-        //Log.i("QR test: clear_focus", tvText);
-        tv.clearFocus();
-    }
-
     private String getStringFromIntent(Intent intent) {
         dataTooLarge = false;
         String intentAction = intent.getAction();
@@ -295,10 +349,10 @@ public class MainActivity extends AppCompatActivity {
                 Bundle dataUris = intent.getExtras();
                 intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (intentText == null && dataUris != null) {
-                    Log.i("getStringFromIntent", "dataUris: " + dataUris);
+                    //Log.i("getStringFromIntent", "dataUris: " + dataUris);
                     // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-                    Log.w("getStringFromIntent", intent.getParcelableExtra(
-                            "android.intent.extra.STREAM").toString());
+                    //Log.w("getStringFromIntent", intent.getParcelableExtra(
+                    //        "android.intent.extra.STREAM").toString());
 
                     ContentResolver contentResolver = getContentResolver();
                     try {
