@@ -13,12 +13,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.Fade;
+import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean dataTooLarge;
     private String stringType;
 
+    private TextView labelText;
+    private Fade mFade;
+    private ViewGroup rootView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,12 +110,12 @@ public class MainActivity extends AppCompatActivity {
         this.registerForContextMenu(iv);
 
 
-        TextView tvt = findViewById(R.id.qr_subtitle_type);
+        //TextView tvt = findViewById(R.id.qr_subtitle_type);
 
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
         tv.setText(stringForQRcode);
-        tvt.setText(stringType);
+        //tvt.setText(stringType);
         Log.i("onCreate", "stringType: " + stringType);
 
         // Update the QR code when the text is changed
@@ -119,7 +126,13 @@ public class MainActivity extends AppCompatActivity {
                 stringForQRcode = s.toString();
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
-                tvt.setText(stringType);
+                //tvt.setText(stringType);
+
+
+                // Start recording changes to the view hierarchy.
+                TransitionManager.beginDelayedTransition(rootView, mFade);
+                // Add the new TextView to the view hierarchy.
+                rootView.addView(labelText);
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -127,6 +140,20 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
         });
+
+        labelText = new TextView(this);
+        labelText.setText("test");
+        labelText.setId(View.generateViewId());
+        // Get the root view and create a transition.
+        rootView = (ViewGroup) findViewById(R.id.frame_layout);
+        mFade = new Fade(Fade.IN);
+
+
+
+        // When the system redraws the screen to show this update,
+        // the framework animates the addition as a fade in.
+
+
     }
 
     public static float convertDpToPixel(float dp, @NonNull Context context){

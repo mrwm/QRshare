@@ -21,6 +21,7 @@
         app:srcCompat="@drawable/ic_launcher_foreground"/>
 
     <FrameLayout
+        android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
