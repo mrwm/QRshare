@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         //tvt.setText(stringType);
         //Log.i("onCreate", "stringType: " + stringType);
 
+        // The wild mess to programmatically create a TextView :)
         subtitleHint = new TextView(this);
         subtitleHint.setId(View.generateViewId());
         subtitleHint.setText(stringType);
@@ -131,15 +133,15 @@ public class MainActivity extends AppCompatActivity {
         TypedValue colorPrimary = new TypedValue();
         this.getTheme().resolveAttribute(android.R.attr.windowBackground, colorPrimary, true);
         subtitleHint.setBackground(ContextCompat.getDrawable(this, colorPrimary.resourceId));
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
         );
-        subtitleHint.setLayoutParams(params);
-        ViewGroup.MarginLayoutParams lp2 = (ViewGroup.MarginLayoutParams) subtitleHint.getLayoutParams();
+        subtitleHint.setLayoutParams(layoutParams);
+        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) subtitleHint.getLayoutParams();
         final int dp8 = (int) convertDpToPixel(8, this);
-        lp2.setMargins(dp8 * 3, -dp8, dp8, dp8);
-        subtitleHint.setLayoutParams(lp2);
+        marginLayoutParams.setMargins(dp8 * 3, dp8*2, dp8, dp8);
+        subtitleHint.setLayoutParams(marginLayoutParams);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
         subtitleHint.setPadding(dp8, dp8, dp8, dp8);
 
@@ -165,33 +167,23 @@ public class MainActivity extends AppCompatActivity {
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             Log.i("onFocusChange", "hasFocus: " + hasFocus);
             if(hasFocus) {
-                if ((tv.getText() == null || tv.getText().length() == 0) && subtitleHint.getParent() == null) {
-                    // Create a new TextView.
-                    // Start recording changes to the view hierarchy.
-                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                    // Add the new TextView to the view hierarchy.
-                    rootView.addView(subtitleHint);
-                }
-                else {
-                    // Start recording changes to the view hierarchy.
-                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                    // Remove the TextView from the view hierarchy.
-                    rootView.removeView(subtitleHint);
-                }
+
+                layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
+                layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
+                marginLayoutParams.setMargins(dp8 * 3, -dp8, dp8, dp8);
+                TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                subtitleHint.setLayoutParams(marginLayoutParams);
+                subtitleHint.setLayoutParams(layoutParams);
+
             } else {
-                if ((tv.getText() == null || tv.getText().length() == 0) && subtitleHint.getParent() == null) {
-                    // Create a new TextView.
-                    // Start recording changes to the view hierarchy.
-                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                    // Add the new TextView to the view hierarchy.
-                    rootView.addView(subtitleHint);
-                }
-                else {
-                    // Start recording changes to the view hierarchy.
-                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                    // Remove the TextView from the view hierarchy.
-                    rootView.removeView(subtitleHint);
-                }
+
+                layoutParams.width  = FrameLayout.LayoutParams.MATCH_PARENT;
+                layoutParams.height = FrameLayout.LayoutParams.MATCH_PARENT;
+                marginLayoutParams.setMargins(dp8 * 3, dp8*2, dp8*2, dp8*2);
+                TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                subtitleHint.setLayoutParams(marginLayoutParams);
+                subtitleHint.setLayoutParams(layoutParams);
+
             }
         });
 
