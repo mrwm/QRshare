@@ -140,12 +140,12 @@ public class MainActivity extends AppCompatActivity {
         );
         subtitleHint.setLayoutParams(layoutParams);
         ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) subtitleHint.getLayoutParams();
-        final int dp8 = (int) convertDpToPixel(8, this);
+        final int dp16 = (int) convertDpToPixel(16, this);
         final int dp2 = (int) convertDpToPixel(2, this);
-        marginLayoutParams.setMargins(dp8 * 2, dp8, dp8, dp8);
+        marginLayoutParams.setMargins(dp16, dp16, dp16, dp16);
         subtitleHint.setLayoutParams(marginLayoutParams);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
-        subtitleHint.setPadding(dp8, dp8, dp8, 0);
+        subtitleHint.setPadding(dp16, dp16, dp16, 0);
         subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
         // Update the QR code when the text is changed
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
 
                 layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
                 layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
-                marginLayoutParams.setMargins(dp8 * 2, -dp8-dp2, dp8, dp8);
+                marginLayoutParams.setMargins(dp16, -dp16-dp2, dp16/2, dp16/2);
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 subtitleHint.setLayoutParams(marginLayoutParams);
                 subtitleHint.setLayoutParams(layoutParams);
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
                     layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
                     layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
-                    marginLayoutParams.setMargins(dp8 * 2, dp8*2, dp8, dp8);
+                    marginLayoutParams.setMargins(dp16, dp16, dp16, dp16);
                     TransitionManager.beginDelayedTransition(rootView, autoTransition);
                     subtitleHint.setLayoutParams(marginLayoutParams);
                     subtitleHint.setLayoutParams(layoutParams);
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         // Get the root view and create a transition.
         rootView = findViewById(R.id.frame_layout);
         autoTransition = new AutoTransition();
-        autoTransition.setDuration(50);
+        autoTransition.setDuration(100);
 
         if (tv.getText() == null || tv.getText().length() == 0) {
             // Create a new TextView.
