@@ -116,9 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
-        //TextView tvt = findViewById(R.id.qr_subtitle_type);
         tv.setText(stringForQRcode);
-        //tvt.setText(stringType);
         //Log.i("onCreate", "stringType: " + stringType);
 
         // The wild mess to programmatically create a TextView :)
@@ -153,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
                 stringForQRcode = s.toString();
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
-                //tvt.setText(stringType);
                 subtitleHint.setText(stringType);
             }
 
@@ -196,21 +193,25 @@ public class MainActivity extends AppCompatActivity {
         // Get the root view and create a transition.
         rootView = findViewById(R.id.frame_layout);
         autoTransition = new AutoTransition();
-        autoTransition.setDuration(100);
+        autoTransition.setDuration(75);
 
         if (tv.getText() == null || tv.getText().length() == 0) {
             // Create a new TextView.
             // Start recording changes to the view hierarchy.
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
             // Add the new TextView to the view hierarchy.
-            Log.i("onFocusChange", "3. view added");
+            //Log.i("onFocusChange", "3. view added");
             rootView.addView(subtitleHint);
         } else {
-            // Start recording changes to the view hierarchy.
+            layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
+            layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
+            marginLayoutParams.setMargins(dp16, -dp16-dp2, dp16/2, dp16/2);
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
-            // Remove the TextView from the view hierarchy.
-            Log.i("onFocusChange", "3. view removed");
-            rootView.removeView(subtitleHint);
+            subtitleHint.setLayoutParams(marginLayoutParams);
+            subtitleHint.setLayoutParams(layoutParams);
+            subtitleHint.setText(stringType);
+            TransitionManager.beginDelayedTransition(rootView, autoTransition);
+            rootView.addView(subtitleHint);
         }
 
     }
@@ -411,6 +412,8 @@ public class MainActivity extends AppCompatActivity {
 
             //Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.edit) {
+            // Kinda funny, I used this menu option to test the animations for the text view.
+            // I didn't expect this that I would have a use for this menu item :)
             tv.requestFocus();
             //Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.share) {

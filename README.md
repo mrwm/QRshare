@@ -5,17 +5,17 @@ Share QR code links using android's share sheet.
 ### Download
 <a href="https://f-droid.org/en/packages/com.wchung.qrshare/">
   <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Get it on FDroid"
+    alt="Get qrshare on FDroid"
     height="75">
 </a>
 <a href="https://apt.izzysoft.de/fdroid/index/apk/com.wchung.qrshare">
   <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png"
-    alt="Get it on IzzyDroid"
+    alt="Get qrshare on IzzyDroid"
     height="75">
 </a>
 <a href="https://play.google.com/store/apps/details?id=com.wchung.qrshare">
   <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
-    alt="Get it on Google Play"
+    alt="Get qrshare on Google Play"
     height="75">
 </a>
 
