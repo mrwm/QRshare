@@ -24,11 +24,12 @@ Share QR code links using android's share sheet.
 ### Features:
 - Dark and Light theme support
 - Landscape + Portrait mode support
-- Lightweight in size: ~1Mb in download + Bloat free!
+- Lightweight in size: Less than 1Mb in download + Bloat free!
 - No ads
 - Low memory usage: Will not spam the Recents screen (aka Overview)
-- ~~Scanning~~
-  - QR code scanning will not be added to keep the app lightweight
+
+- Anti-feature:
+  - The lack of QR code scanning
 
 ### Usage:
 - Opening the app:
@@ -42,7 +43,7 @@ Share QR code links using android's share sheet.
   
 - Sharing links quickly. 
   - eg:
-    - Sharing app links for profiles: Instagram / Vemo / Whatsapp / Telegram / etc.
+    - Sharing app links for profiles: Instagram / Venmo / Whatsapp / Telegram / etc.
     - Web pages
 - Sharing contacts
   - Contact app > Share > QRshare
@@ -55,3 +56,4 @@ Share QR code links using android's share sheet.
 
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/0.png" style="width:250px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" style="width:250px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" style="width:250px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" style="width:250px;">
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" style="width:500px;"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" style="width:500px;">
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" style="width:1000px;">

@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -109,9 +108,7 @@ public class MainActivity extends AppCompatActivity {
         iv.setLayoutParams(lp);
 
         // Clear the focus when the image view is tapped. Just a pretty touch effect
-        iv.setOnClickListener(view -> {
-            tv.clearFocus();
-        });
+        iv.setOnClickListener(view -> tv.clearFocus());
 
         // Open a menu when long pressing the image
         this.registerForContextMenu(iv);
@@ -166,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        // Animate layout chage for the hint when the textbox is selected (or not)
+        // Animate layout change for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             Log.i("onFocusChange", "hasFocus: " + hasFocus);
             if(hasFocus) {
@@ -225,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Bitmap stringToQRcode(String stringForQRcode) {
         String no_data = getString(R.string.no_data);
-        int qrSize  = 500;
+        int qrSize;
         float multiplier = 1f; // Kinda like a resolution scaling factor
         qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
                             Resources.getSystem().getDisplayMetrics().heightPixels);
@@ -251,13 +248,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if (stringForQRcode.isEmpty() || stringForQRcode.isBlank()) {
             Log.i("stringToQRcode", "stringForQRcode is empty");
-            // For some reason, bitmaps from R drawables only work on first launch of the activity
-            // After the first launch, it will continue to return null. >:/
-            //Bitmap icon = BitmapFactory.decodeResource(getResources(),
-            //        R.drawable.ic_launcher_foreground);
-            //Log.i("stringToQRcode", String.valueOf(icon));
-            //isJustLaunched = false;
-            //return icon;
             stringForQRcode = no_data;
         }
         try {
@@ -294,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
         byte[] bytearray = byteArrayOutputStream.toByteArray();
 
         // Save the file to the cache
-        FileOutputStream fileOutputStream = null;
+        FileOutputStream fileOutputStream;
         try {
             fileOutputStream = new FileOutputStream(cacheFile);
         } catch (FileNotFoundException e) {
@@ -320,8 +310,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        //Log.i("onNewIntent", intent.toString());
-        //Log.i("onNewIntent", Objects.requireNonNull(intent.getAction()));
         stringForQRcode = getStringFromIntent(intent);
         tv.setText(stringForQRcode);
 
@@ -351,10 +339,7 @@ public class MainActivity extends AppCompatActivity {
                 Bundle dataUris = intent.getExtras();
                 intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (intentText == null && dataUris != null) {
-                    //Log.i("getStringFromIntent", "dataUris: " + dataUris);
                     // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-                    //Log.w("getStringFromIntent", intent.getParcelableExtra(
-                    //        "android.intent.extra.STREAM").toString());
 
                     ContentResolver contentResolver = getContentResolver();
                     try {
@@ -385,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Toast.makeText(getApplicationContext(), "Unable to parse " +
                             intent.getType() + " yet", Toast.LENGTH_LONG).show();
-                    return intentText;
+                    return null;
                 }
             } else {
                 intentType = intentType.split("/")[0];
@@ -396,8 +381,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         } else {
-            //Toast.makeText(getApplicationContext(),
-            //        "Woah, how did you get here?", Toast.LENGTH_LONG).show();
             stringType = getString(R.string.app_name);
         }
         return intentText;
