@@ -1,0 +1,4 @@
+- Removed DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION. Now there should be zero permissions needed in this app
+- Added text hint with animation
+- Revert icon from changing to dark theme. It was inconsistent
+- Pixel users: Opening the recents/overview app screen will also show an option to copy the link in the text box
