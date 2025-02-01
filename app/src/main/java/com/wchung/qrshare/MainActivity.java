@@ -73,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
     private AutoTransition autoTransition;
     private ViewGroup rootView;
 
+    private int dp16;
+    private int dp2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        dp16 = (int) convertDpToPixel(16, this);
+        dp2 = (int) convertDpToPixel(2, this);
 
         // Define the cache file location
         cacheFile = new File(getCacheDir(), "QR_image.jpg");
@@ -103,8 +109,7 @@ public class MainActivity extends AppCompatActivity {
         iv.setImageBitmap(qr_bitmap);
         // Set the margins of the image view
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-        final int dp32 = (int) convertDpToPixel(32, this);
-        lp.setMargins(dp32, dp32, dp32, dp32);
+        lp.setMargins(dp16*2, dp16*2, dp16*2, dp16*2);
         iv.setLayoutParams(lp);
 
         // Clear the focus when the image view is tapped. Just a pretty touch effect
@@ -129,16 +134,7 @@ public class MainActivity extends AppCompatActivity {
         TypedValue colorPrimary = new TypedValue();
         this.getTheme().resolveAttribute(android.R.attr.windowBackground, colorPrimary, true);
         subtitleHint.setBackground(ContextCompat.getDrawable(this, colorPrimary.resourceId));
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-        );
-        subtitleHint.setLayoutParams(layoutParams);
-        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) subtitleHint.getLayoutParams();
-        final int dp16 = (int) convertDpToPixel(16, this);
-        final int dp2 = (int) convertDpToPixel(2, this);
-        marginLayoutParams.setMargins(dp16, dp16, dp16, dp16);
-        subtitleHint.setLayoutParams(marginLayoutParams);
+        setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
         subtitleHint.setPadding(dp16, dp16, dp16, 0);
         subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -163,29 +159,16 @@ public class MainActivity extends AppCompatActivity {
         // Animate layout change for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             Log.i("onFocusChange", "hasFocus: " + hasFocus);
+            if (tv.getText() == null || tv.getText().length() == 0) {
+                subtitleHint.setText(getString(R.string.app_name));
+            }
             if(hasFocus) {
-                if (tv.getText() == null || tv.getText().length() == 0) {
-                    subtitleHint.setText(getString(R.string.app_name));
-                }
-
-                layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
-                layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
-                marginLayoutParams.setMargins(dp16, -dp16-dp2, dp16/2, dp16/2);
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                subtitleHint.setLayoutParams(marginLayoutParams);
-                subtitleHint.setLayoutParams(layoutParams);
-
-            } else {
-                if (tv.getText() == null || tv.getText().length() == 0) {
-                    subtitleHint.setText(getString(R.string.qr_instructions));
-
-                    layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
-                    layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
-                    marginLayoutParams.setMargins(dp16, dp16, dp16, dp16);
-                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                    subtitleHint.setLayoutParams(marginLayoutParams);
-                    subtitleHint.setLayoutParams(layoutParams);
-                }
+                setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+            } else if (tv.getText() == null || tv.getText().length() == 0) {
+                subtitleHint.setText(getString(R.string.qr_instructions));
+                TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
             }
         });
 
@@ -195,25 +178,25 @@ public class MainActivity extends AppCompatActivity {
         autoTransition = new AutoTransition();
         autoTransition.setDuration(75);
 
-        if (tv.getText() == null || tv.getText().length() == 0) {
-            // Create a new TextView.
-            // Start recording changes to the view hierarchy.
+        if (stringForQRcode != null) {
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
-            // Add the new TextView to the view hierarchy.
-            //Log.i("onFocusChange", "3. view added");
-            rootView.addView(subtitleHint);
-        } else {
-            layoutParams.width  = FrameLayout.LayoutParams.WRAP_CONTENT;
-            layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
-            marginLayoutParams.setMargins(dp16, -dp16-dp2, dp16/2, dp16/2);
-            TransitionManager.beginDelayedTransition(rootView, autoTransition);
-            subtitleHint.setLayoutParams(marginLayoutParams);
-            subtitleHint.setLayoutParams(layoutParams);
+            setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
             subtitleHint.setText(stringType);
-            TransitionManager.beginDelayedTransition(rootView, autoTransition);
-            rootView.addView(subtitleHint);
         }
+        TransitionManager.beginDelayedTransition(rootView, autoTransition);
+        rootView.addView(subtitleHint);
 
+    }
+
+    private static void setViewMargins(View view, int left, int top, int right, int bottom) {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        view.setLayoutParams(layoutParams);
+        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        marginLayoutParams.setMargins(left, top, right, bottom);
+        view.setLayoutParams(marginLayoutParams);
     }
 
     public static float convertDpToPixel(float dp, @NonNull Context context){
@@ -224,12 +207,8 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap stringToQRcode(String stringForQRcode) {
         String no_data = getString(R.string.no_data);
         int qrSize;
-        float multiplier = 1f; // Kinda like a resolution scaling factor
         qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
                             Resources.getSystem().getDisplayMetrics().heightPixels);
-        qrSize = (int) (qrSize * multiplier);
-        //Log.i("stringToQRcode", "qrSize: " + qrSize);
-
         BitMatrix bitMatrix;
         Bitmap bitmap_image;
 
@@ -318,9 +297,11 @@ public class MainActivity extends AppCompatActivity {
         iv.setImageBitmap(qr_bitmap);
         // Set the margins of the image view
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-        int marginPxToDp = (int) convertDpToPixel(32, getApplicationContext());
-        lp.setMargins(marginPxToDp, marginPxToDp, marginPxToDp, marginPxToDp);
+        lp.setMargins(dp16*2, dp16*2, dp16*2, dp16*2);
         iv.setLayoutParams(lp);
+
+        //subtitleHint
+        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
     }
 
     private String getStringFromIntent(Intent intent) {
