@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "QR share"
 include(":app")
-include(":qrshare_wear")
+include(":qrshare")
