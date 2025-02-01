@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.activity)
     implementation(libs.ui.android)
+    implementation(libs.play.services.wearable)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -15,5 +15,6 @@
     <string name="menu_copy">Copy</string>
     <string name="menu_edit">Edit</string>
     <string name="menu_share">Share</string>
+    <string name="menu_wear">Send to wear</string>
 
 </resources>

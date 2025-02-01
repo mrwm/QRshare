@@ -39,6 +39,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -58,6 +67,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -407,6 +417,9 @@ public class MainActivity extends AppCompatActivity {
 
             Intent shareIntent = Intent.createChooser(sendIntent, "Share QR code using");
             startActivity(shareIntent);
+        } else if (itemId == R.id.wear) {
+            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+            requestTranscription(null);
         } else {
             Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         }
@@ -421,5 +434,18 @@ public class MainActivity extends AppCompatActivity {
             stringForQRcode = getString(R.string.no_data);
         }
         outContent.setWebUri(Uri.parse(stringForQRcode));
+    }
+
+    // Wear capability
+    private static final String COUNT_KEY = "com.example.key.count";
+    private DataClient dataClient;
+    private int count = 0;
+    // Create a data map and put data in it
+    private void increaseCounter() {
+        dataClient = Wearable.getDataClient(this);
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/count");
+        putDataMapReq.getDataMap().putInt(COUNT_KEY, count++);
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        Task<DataItem> putDataTask = dataClient.putDataItem(putDataReq);
     }
 }
