@@ -28,6 +28,8 @@ Share QR code links using android's share sheet.
 - No ads
 - Low memory usage: Will not spam the Recents screen (aka Overview)
 
+<br>
+
 - Anti-feature:
   - The lack of QR code scanning
 
