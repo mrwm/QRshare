@@ -1,5 +1,6 @@
 package com.wchung.qrshare;
 
+// android.*
 import android.app.assist.AssistContent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -30,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+// androidx.*
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +41,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+// *.xzing.*
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataClient;
@@ -55,6 +58,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+// java.*
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -66,6 +70,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 
 public class MainActivity extends AppCompatActivity {
     private Bitmap qr_bitmap;
@@ -82,6 +87,23 @@ public class MainActivity extends AppCompatActivity {
 
     private int dp16;
     private int dp2;
+
+    public static float convertDpToPixel(float dp, @NonNull Context context){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
+                DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    private static void setViewMargins(View view, int left, int top, int right, int bottom) {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        view.setLayoutParams(layoutParams);
+        ViewGroup.MarginLayoutParams marginLayoutParams =
+                (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        marginLayoutParams.setMargins(left, top, right, bottom);
+        view.setLayoutParams(marginLayoutParams);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +133,10 @@ public class MainActivity extends AppCompatActivity {
         // Create a function that takes a string and creates a QR code to cacheFile
         //saveBitmapToCache(qr_bitmap);
 
-        iv = findViewById(R.id.imageViewQRCode);
         // Set the image view to the QR code
+        iv = findViewById(R.id.imageViewQRCode);
         iv.setImageBitmap(qr_bitmap);
+
         // Set the margins of the image view
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
         lp.setMargins(dp16*2, dp16*2, dp16*2, dp16*2);
@@ -125,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
         // Open a menu when long pressing the image
         this.registerForContextMenu(iv);
 
-
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
         tv.setText(stringForQRcode);
@@ -134,16 +156,20 @@ public class MainActivity extends AppCompatActivity {
         // The wild mess to programmatically create a TextView :)
         subtitleHint = new TextView(this);
         subtitleHint.setId(View.generateViewId());
-        subtitleHint.setText(getString(R.string.qr_instructions));
+
+        // Set the background color of the hint
         TypedValue windowBackground = new TypedValue();
-        this.getTheme().resolveAttribute(android.R.attr.windowBackground, windowBackground, true);
-        subtitleHint.setBackground(ContextCompat.getDrawable(this, windowBackground.resourceId));
-        TypedValue colorPrimary = new TypedValue();
-        this.getTheme().resolveAttribute(android.R.attr.windowBackground, colorPrimary, true);
-        subtitleHint.setBackground(ContextCompat.getDrawable(this, colorPrimary.resourceId));
+        this.getTheme().resolveAttribute(
+                android.R.attr.windowBackground, windowBackground, true);
+        subtitleHint.setBackground(
+                ContextCompat.getDrawable(this, windowBackground.resourceId));
+
         setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
         subtitleHint.setPadding(dp16, dp16, dp16, 0);
+
+        // Set the text of the hint
+        subtitleHint.setText(getString(R.string.qr_instructions));
         subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
         // Update the QR code when the text is changed
@@ -179,43 +205,108 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Subtitle hint for the text type
         // Get the root view and create a transition.
         rootView = findViewById(R.id.frame_layout);
         autoTransition = new AutoTransition();
-        autoTransition.setDuration(75);
+        autoTransition.setDuration(75); // 50 works too, but is slightly too fast to notice
+        rootView.addView(subtitleHint);
 
         if (stringForQRcode != null) {
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
             setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
             subtitleHint.setText(stringType);
         }
-        TransitionManager.beginDelayedTransition(rootView, autoTransition);
-        rootView.addView(subtitleHint);
 
     }
 
-    private static void setViewMargins(View view, int left, int top, int right, int bottom) {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-        );
-        view.setLayoutParams(layoutParams);
-        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-        marginLayoutParams.setMargins(left, top, right, bottom);
-        view.setLayoutParams(marginLayoutParams);
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+
+        // Grab the text from the new intent and update the textedit
+        stringForQRcode = getStringFromIntent(intent);
+        tv.setText(stringForQRcode);
+
+        // Then update the QR code with the corresponding text
+        qr_bitmap = stringToQRcode(stringForQRcode);
+        iv.setImageBitmap(qr_bitmap);
+
+        // Move the text type hint out of the way of the text
+        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
     }
 
-    public static float convertDpToPixel(float dp, @NonNull Context context){
-        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
-                DisplayMetrics.DENSITY_DEFAULT);
+    private String getStringFromIntent(Intent intent) {
+        dataTooLarge = false;
+        String intentAction = intent.getAction();
+        String intentType = intent.getType();
+        String unsupported_mimetype = getString(R.string.unsupported_mimetype);
+        Log.i("getStringFromIntent", "intentAction: " + intentAction);
+        Log.i("getStringFromIntent", "intentType: " + intentType);
+
+        String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        Log.i("getStringFromIntent", "intentText: " + intentText);
+        stringType = intentType;
+        if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
+            //Log.i("getStringFromIntent", "intentAction and intentType are not null");
+            if ("text".equals(intentType.split("/")[0])) {
+                Bundle dataUris = intent.getExtras();
+                intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                if (intentText == null && dataUris != null) {
+                    // We got a text file of some sort! time to parse it...
+                    // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
+
+                    ContentResolver contentResolver = getContentResolver();
+                    try {
+                        InputStream inputStream = contentResolver.openInputStream(
+                                Objects.requireNonNull(intent.getParcelableExtra(
+                                        "android.intent.extra.STREAM")));
+                        assert inputStream != null;
+                        // Returns the file size in bytes
+                        //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
+                        if (inputStream.available() > 1307) {
+                            //Log.w("getStringFromIntent", "Data too large to share");
+                            Toast.makeText(this,
+                                    getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
+                        }
+                        BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
+                        StringBuilder total = new StringBuilder();
+                        for (String line; (line = r.readLine()) != null; ) {
+                            total.append(line).append('\n');
+                        }
+                        inputStream.close();
+                        intentText = total.toString();
+                        //Log.i("getStringFromIntent", "intentText: " + intentText);
+                        return intentText;
+
+                    } catch (IOException e) {
+                        // Handle exceptions
+                        Log.e("StreamProcessing", "Error accessing stream data", e);
+                    }
+                    Toast.makeText(this, "Unable to parse " +
+                            intent.getType() + " yet", Toast.LENGTH_LONG).show();
+                    return null;
+                }
+            } else {
+                intentType = intentType.split("/")[0];
+                Toast.makeText(this, unsupported_mimetype + intentType,
+                        Toast.LENGTH_LONG).show();
+            }
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
+            // Maybe... Use the code I used in v1.0.10 or 11 to handle multiple sharing?
+            // It handled multiple files nicely, but combined all files into one string.
+            Toast.makeText(this,
+                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
+        } else {
+            stringType = getString(R.string.app_name);
+        }
+        return intentText;
     }
 
     private Bitmap stringToQRcode(String stringForQRcode) {
         String no_data = getString(R.string.no_data);
         int qrSize;
         qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
-                            Resources.getSystem().getDisplayMetrics().heightPixels);
+                Resources.getSystem().getDisplayMetrics().heightPixels);
         BitMatrix bitMatrix;
         Bitmap bitmap_image;
 
@@ -245,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
                     BarcodeFormat.QR_CODE, qrSize, qrSize, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
-            Toast.makeText(getApplicationContext(), "Error generating QR code", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error generating QR code", Toast.LENGTH_LONG).show();
             return null;
         }
 
@@ -254,7 +345,6 @@ public class MainActivity extends AppCompatActivity {
         BitArray row = new BitArray(qrSize);
         for (int y = 0; y < qrSize; y++) {
             row = bitMatrix.getRow(y, row);
-//            Log.i("QR test: setImageQR", String.valueOf(row));
             for (int x = 0; x < qrSize; x++) {
                 rowPixels[x] = row.get(x) ? Color.BLACK : Color.WHITE;
             }
@@ -262,6 +352,57 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return bitmap_image;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
+
+        //menu.setHeaderTitle("Context Menu");
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_list, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        // Save the image to the cache
+        saveBitmapToCache(qr_bitmap);
+        Uri uriForFile = FileProvider.getUriForFile(this,
+                this.getPackageName() + ".provider", cacheFile);
+
+        // Handle the menu item clicks
+        int itemId = item.getItemId();
+        if (itemId == R.id.copy) {
+            ClipboardManager clipboard =
+                    (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newUri(getContentResolver(), "Image", uriForFile);
+            clipboard.setPrimaryClip(clip);
+
+            Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
+        } else if (itemId == R.id.edit) {
+            // Kinda funny, I used this menu option to test the animations for the text view.
+            // I didn't expect this that I would have a use for this menu item :)
+            tv.requestFocus();
+            //Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
+        } else if (itemId == R.id.share) {
+            //Toast.makeText(this, R.string.menu_share, Toast.LENGTH_SHORT).show();
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uriForFile);
+            sendIntent.setType("image/jpg");
+            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            Intent shareIntent = Intent.createChooser(sendIntent, "Share QR code using");
+            startActivity(shareIntent);
+        } else if (itemId == R.id.wear) {
+            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+            sendImage();
+        } else {
+            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        }
+        return true;
     }
 
     private void saveBitmapToCache(@NonNull Bitmap bitmap_image) {
@@ -292,135 +433,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    protected void onNewIntent(@NonNull Intent intent) {
-        super.onNewIntent(intent);
-        stringForQRcode = getStringFromIntent(intent);
-        tv.setText(stringForQRcode);
-
-        qr_bitmap = stringToQRcode(stringForQRcode);
-        iv.setImageBitmap(qr_bitmap);
-        // Set the margins of the image view
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-        lp.setMargins(dp16*2, dp16*2, dp16*2, dp16*2);
-        iv.setLayoutParams(lp);
-
-        //subtitleHint
-        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-    }
-
-    private String getStringFromIntent(Intent intent) {
-        dataTooLarge = false;
-        String intentAction = intent.getAction();
-        String intentType = intent.getType();
-        String unsupported_mimetype = getString(R.string.unsupported_mimetype);
-        Log.i("getStringFromIntent", "intentAction: " + intentAction);
-        Log.i("getStringFromIntent", "intentType: " + intentType);
-
-        String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        Log.i("getStringFromIntent", "intentText: " + intentText);
-        stringType = intentType;
-        if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
-            //Log.i("getStringFromIntent", "intentAction and intentType are not null");
-            if ("text".equals(intentType.split("/")[0])) {
-                Bundle dataUris = intent.getExtras();
-                intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (intentText == null && dataUris != null) {
-                    // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-
-                    ContentResolver contentResolver = getContentResolver();
-                    try {
-                        InputStream inputStream = contentResolver.openInputStream(
-                                Objects.requireNonNull(intent.getParcelableExtra(
-                                        "android.intent.extra.STREAM")));
-                        assert inputStream != null;
-                        // Returns the file size in bytes
-                        //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
-                        if (inputStream.available() > 1307) {
-                            //Log.w("getStringFromIntent", "Data too large to share");
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
-                        }
-                        BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
-                        StringBuilder total = new StringBuilder();
-                        for (String line; (line = r.readLine()) != null; ) {
-                            total.append(line).append('\n');
-                        }
-                        inputStream.close();
-                        intentText = total.toString();
-                        //Log.i("getStringFromIntent", "intentText: " + intentText);
-                        return intentText;
-
-                    } catch (IOException e) {
-                        // Handle exceptions
-                        Log.e("StreamProcessing", "Error accessing stream data", e);
-                    }
-                    Toast.makeText(getApplicationContext(), "Unable to parse " +
-                            intent.getType() + " yet", Toast.LENGTH_LONG).show();
-                    return null;
-                }
-            } else {
-                intentType = intentType.split("/")[0];
-                Toast.makeText(getApplicationContext(), unsupported_mimetype + intentType,
-                        Toast.LENGTH_LONG).show();
-            }
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
-        } else {
-            stringType = getString(R.string.app_name);
-        }
-        return intentText;
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-
-        //menu.setHeaderTitle("Context Menu");
-
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_list, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        saveBitmapToCache(qr_bitmap);
-        Uri uriForFile = FileProvider.getUriForFile(this,
-                this.getApplicationContext().getPackageName() + ".provider", cacheFile);
-        int itemId = item.getItemId();
-        if (itemId == R.id.copy) {
-            ClipboardManager clipboard =
-                    (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newUri(getContentResolver(), "Image", uriForFile);
-            clipboard.setPrimaryClip(clip);
-
-            //Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
-        } else if (itemId == R.id.edit) {
-            // Kinda funny, I used this menu option to test the animations for the text view.
-            // I didn't expect this that I would have a use for this menu item :)
-            tv.requestFocus();
-            //Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
-        } else if (itemId == R.id.share) {
-            //Toast.makeText(this, R.string.menu_share, Toast.LENGTH_SHORT).show();
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_STREAM, uriForFile);
-            sendIntent.setType("image/jpg");
-            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            Intent shareIntent = Intent.createChooser(sendIntent, "Share QR code using");
-            startActivity(shareIntent);
-        } else if (itemId == R.id.wear) {
-            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
-            sendImage();
-        } else {
-            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
-        }
-        return true;
     }
 
     // ref: https://developer.android.com/guide/components/activities/recents
