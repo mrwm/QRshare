@@ -173,9 +173,17 @@ public class MainActivity extends AppCompatActivity {
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
                 subtitleHint.setText(stringType);
+                if (tv.getText() == null || tv.getText().length() == 0) {
+                    subtitleHint.setText(getString(R.string.qr_instructions));
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+                }
             }
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+            }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
@@ -238,60 +246,62 @@ public class MainActivity extends AppCompatActivity {
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
         Log.i("getStringFromIntent", "intentText: " + intentText);
         stringType = intentType;
-        if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
-            //Log.i("getStringFromIntent", "intentAction and intentType are not null");
-            if ("text".equals(intentType.split("/")[0])) {
-                Bundle dataUris = intent.getExtras();
-                intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (intentText == null && dataUris != null) {
-                    // We got a text file of some sort! time to parse it...
-                    // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-
-                    ContentResolver contentResolver = getContentResolver();
-                    try {
-                        InputStream inputStream = contentResolver.openInputStream(
-                                Objects.requireNonNull(intent.getParcelableExtra(
-                                        "android.intent.extra.STREAM")));
-                        assert inputStream != null;
-                        // Returns the file size in bytes
-                        //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
-                        if (inputStream.available() > 1307) {
-                            //Log.w("getStringFromIntent", "Data too large to share");
-                            Toast.makeText(this,
-                                    getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
-                        }
-                        BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
-                        StringBuilder total = new StringBuilder();
-                        for (String line; (line = r.readLine()) != null; ) {
-                            total.append(line).append('\n');
-                        }
-                        inputStream.close();
-                        intentText = total.toString();
-                        //Log.i("getStringFromIntent", "intentText: " + intentText);
-                        return intentText;
-
-                    } catch (IOException e) {
-                        // Handle exceptions
-                        Log.e("StreamProcessing", "Error accessing stream data", e);
-                    }
-                    Toast.makeText(this, "Unable to parse " +
-                            intent.getType() + " yet", Toast.LENGTH_LONG).show();
-                    return null;
-                }
-            } else {
-                intentType = intentType.split("/")[0];
-                Toast.makeText(this, unsupported_mimetype + intentType,
-                        Toast.LENGTH_LONG).show();
-            }
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
-            // Maybe... Use the code I used in v1.0.10 or 11 to handle multiple sharing?
-            // It handled multiple files nicely, but combined all files into one string.
-            Toast.makeText(this,
-                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
-        } else {
+        if (intentType == null) {
+            intentType = "text";
             stringType = getString(R.string.app_name);
         }
-        return intentText;
+        // Probably remove this following redundant part
+        if (!"text".equals(intentType.split("/")[0])) {
+            intentType = intentType.split("/")[0];
+            Toast.makeText(this, unsupported_mimetype + intentType,
+                    Toast.LENGTH_LONG).show();
+        }
+        if (intentText != null) {
+            return intentText;
+        }
+        Bundle dataUris = intent.getExtras();
+        Log.i("getStringFromIntent", "dataUris: " + (dataUris != null ? dataUris.toString() : null));
+        if (Intent.ACTION_SEND.equals(intentAction)) {
+            if (dataUris != null) {
+                // We got a text file of some sort! time to parse it...
+                // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
+
+                ContentResolver contentResolver = getContentResolver();
+                try {
+                    InputStream inputStream = contentResolver.openInputStream(
+                            Objects.requireNonNull(intent.getParcelableExtra(
+                                    "android.intent.extra.STREAM")));
+                    assert inputStream != null;
+                    // Returns the file size in bytes
+                    //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
+                    if (inputStream.available() > 1307) {
+                        //Log.w("getStringFromIntent", "Data too large to share");
+                        Toast.makeText(this,
+                                getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
+                    }
+                    BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder total = new StringBuilder();
+                    for (String line; (line = r.readLine()) != null; ) {
+                        total.append(line).append('\n');
+                    }
+                    inputStream.close();
+                    intentText = total.toString();
+                    //Log.i("getStringFromIntent", "intentText: " + intentText);
+                    return intentText;
+
+                } catch (IOException e) {
+                    // Handle exceptions
+                    Log.e("StreamProcessing", "Error accessing stream data", e);
+                }
+                Toast.makeText(this, "Unable to parse " +
+                        intent.getType() + " yet", Toast.LENGTH_LONG).show();
+                return null;
+            }
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
+            Toast.makeText(this,
+                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
+        }
+        return null;
     }
 
     private Bitmap stringToQRcode(String stringForQRcode) {
