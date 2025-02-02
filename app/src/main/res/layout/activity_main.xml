@@ -16,6 +16,7 @@
         android:layout_weight="1"
         android:layout_gravity="center"
         android:contentDescription="@string/qr_code_description"
+        android:background="@drawable/ic_launcher_foreground"
         app:autoSizeTextType="uniform"
         app:contentDescription="@string/qr_code_description"
         app:srcCompat="@drawable/ic_launcher_foreground"/>
