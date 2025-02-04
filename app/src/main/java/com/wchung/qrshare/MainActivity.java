@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class MainActivity extends AppCompatActivity {
     private Bitmap qr_bitmap;
     private TextView tv;
