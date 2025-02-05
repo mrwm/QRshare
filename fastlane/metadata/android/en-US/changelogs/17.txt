@@ -1,0 +1,4 @@
+- Changed screen ratio of QR code. QR code should be larger now
+- Add background behind QR code in case QR code fails to generate. eg: Using a lot of emoji's :P
+- Add back text hint with project link in the text box
+- Fixed bug where text type hint will cover text box content with keyboard not minimized
