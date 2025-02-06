@@ -16,7 +16,7 @@
         android:layout_weight="1"
         android:layout_gravity="center"
         android:contentDescription="@string/qr_code_description"
-        android:background="@mipmap/ic_launcher"
+        android:background="@drawable/placeholder"
         app:autoSizeTextType="uniform"
         app:contentDescription="@string/qr_code_description"
         app:srcCompat="@mipmap/ic_launcher" />
