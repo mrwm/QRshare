@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
                 subtitleHint.setText(stringType);
-                if (tv.getText() == null || tv.getText().length() == 0) {
+                if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                     subtitleHint.setText(getString(R.string.qr_instructions));
                     TransitionManager.beginDelayedTransition(rootView, autoTransition);
                     setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
@@ -191,13 +191,13 @@ public class MainActivity extends AppCompatActivity {
         // Animate layout change for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             Log.i("onFocusChange", "hasFocus: " + hasFocus);
-            if (tv.getText() == null || tv.getText().length() == 0) {
+            if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.app_name));
             }
             if(hasFocus) {
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-            } else if (tv.getText() == null || tv.getText().length() == 0) {
+            } else if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.qr_instructions));
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Move the text type hint out of the way of the text if there's a given text
         setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-        if (tv.getText().length() == 0) {
+        if (tv.getText().toString().isEmpty()) {
             // Don't move the text type hint if there's no text
             setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
         }
@@ -332,12 +332,10 @@ public class MainActivity extends AppCompatActivity {
             stringForQRcode = getString(R.string.data_too_large);
             Log.i("stringToQRcode", "stringForQRcode is too large");
         }
-        if (stringForQRcode == null){
+        if (stringForQRcode == null || stringForQRcode.isEmpty() ){
+            // Not using .isBlank(), as we also want to create a QR code for white space/tabs/etc
+            // Not sure if people actually use it though, but wouldn't want to block that use case
             Log.i("stringToQRcode", "stringForQRcode is null");
-            stringForQRcode = no_data;
-        }
-        if (stringForQRcode.isEmpty() || stringForQRcode.isBlank()) {
-            Log.i("stringToQRcode", "stringForQRcode is empty");
             stringForQRcode = no_data;
         }
         try {
