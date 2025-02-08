@@ -1,6 +1,6 @@
 # <img src="fastlane/metadata/android/en-US/images/icon.png" alt="drawing" style="width:64px"/> QRshare
 
-Share QR code links using android's share sheet.
+Share QR code with android's share sheet.
 
 ### Download
 <a href="https://f-droid.org/en/packages/com.wchung.qrshare/">
@@ -42,8 +42,8 @@ Share QR code links using android's share sheet.
 - Press and hold on the image to bring up options to copy the image to clipboard, or share the QR code to another app
 
 <details><summary><h3>Use cases:</h3></summary>
-  
-- Sharing links quickly. 
+
+- Sharing links quickly.
   - eg:
     - Sharing app links for profiles: Instagram / Venmo / Whatsapp / Telegram / etc.
     - Web pages
@@ -51,6 +51,13 @@ Share QR code links using android's share sheet.
   - Contact app > Share > QRshare
 - Sharing text files
   - File manager > Share > QRshare
+
+</details>
+
+<details><summary><h3>WearOS:</h3></summary>
+
+- Not supported in master branch, but [a rudimentary draft can be found on the wear branch](https://github.com/mrwm/QRshare/tree/wear).
+- Will not be merged in master branch, as it includes Google Play Services.
 
 </details>
 

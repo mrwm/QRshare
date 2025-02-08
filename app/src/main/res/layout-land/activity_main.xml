@@ -16,15 +16,16 @@
         android:layout_weight="1"
         android:layout_gravity="center"
         android:contentDescription="@string/qr_code_description"
+        android:background="@drawable/ic_launcher_foreground"
         app:autoSizeTextType="uniform"
         app:contentDescription="@string/qr_code_description"
-        app:srcCompat="@drawable/ic_launcher_foreground" />
+        app:srcCompat="@mipmap/ic_launcher" />
 
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="0.8"
         android:layout_margin="8dp"
         tools:context=".draft">
 
@@ -40,7 +41,7 @@
             android:padding="24dp"
             android:textAlignment="viewStart"
             android:autoSizeTextType="uniform"
-            android:maxWidth="488dp"
+            android:hint="@string/no_data"
             app:autoSizeTextType="uniform"
             tools:ignore="Autofill" />
     </FrameLayout>

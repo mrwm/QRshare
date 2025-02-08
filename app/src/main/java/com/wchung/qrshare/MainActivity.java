@@ -41,7 +41,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-// *.xzing.*
+// com.*.gms.*
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataClient;
@@ -50,6 +50,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
+// *.xzing.*
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -67,10 +68,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-
 
 public class MainActivity extends AppCompatActivity {
     private Bitmap qr_bitmap;
@@ -182,9 +182,17 @@ public class MainActivity extends AppCompatActivity {
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
                 subtitleHint.setText(stringType);
+                if (tv.getText() == null || tv.getText().toString().isEmpty()) {
+                    subtitleHint.setText(getString(R.string.qr_instructions));
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+                }
             }
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+            }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
@@ -193,13 +201,13 @@ public class MainActivity extends AppCompatActivity {
         // Animate layout change for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             Log.i("onFocusChange", "hasFocus: " + hasFocus);
-            if (tv.getText() == null || tv.getText().length() == 0) {
+            if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.app_name));
             }
             if(hasFocus) {
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-            } else if (tv.getText() == null || tv.getText().length() == 0) {
+            } else if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.qr_instructions));
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
@@ -232,8 +240,12 @@ public class MainActivity extends AppCompatActivity {
         qr_bitmap = stringToQRcode(stringForQRcode);
         iv.setImageBitmap(qr_bitmap);
 
-        // Move the text type hint out of the way of the text
+        // Move the text type hint out of the way of the text if there's a given text
         setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+        if (tv.getText().toString().isEmpty()) {
+            // Don't move the text type hint if there's no text
+            setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+        }
     }
 
     private String getStringFromIntent(Intent intent) {
@@ -247,60 +259,69 @@ public class MainActivity extends AppCompatActivity {
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
         Log.i("getStringFromIntent", "intentText: " + intentText);
         stringType = intentType;
-        if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
-            //Log.i("getStringFromIntent", "intentAction and intentType are not null");
-            if ("text".equals(intentType.split("/")[0])) {
-                Bundle dataUris = intent.getExtras();
-                intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (intentText == null && dataUris != null) {
-                    // We got a text file of some sort! time to parse it...
-                    // intent.getParcelableExtra("android.intent.extra.STREAM") gets the file URI
-
-                    ContentResolver contentResolver = getContentResolver();
-                    try {
-                        InputStream inputStream = contentResolver.openInputStream(
-                                Objects.requireNonNull(intent.getParcelableExtra(
-                                        "android.intent.extra.STREAM")));
-                        assert inputStream != null;
-                        // Returns the file size in bytes
-                        //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
-                        if (inputStream.available() > 1307) {
-                            //Log.w("getStringFromIntent", "Data too large to share");
-                            Toast.makeText(this,
-                                    getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
-                        }
-                        BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
-                        StringBuilder total = new StringBuilder();
-                        for (String line; (line = r.readLine()) != null; ) {
-                            total.append(line).append('\n');
-                        }
-                        inputStream.close();
-                        intentText = total.toString();
-                        //Log.i("getStringFromIntent", "intentText: " + intentText);
-                        return intentText;
-
-                    } catch (IOException e) {
-                        // Handle exceptions
-                        Log.e("StreamProcessing", "Error accessing stream data", e);
-                    }
-                    Toast.makeText(this, "Unable to parse " +
-                            intent.getType() + " yet", Toast.LENGTH_LONG).show();
-                    return null;
-                }
-            } else {
-                intentType = intentType.split("/")[0];
-                Toast.makeText(this, unsupported_mimetype + intentType,
-                        Toast.LENGTH_LONG).show();
-            }
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction) && intentType != null) {
-            // Maybe... Use the code I used in v1.0.10 or 11 to handle multiple sharing?
-            // It handled multiple files nicely, but combined all files into one string.
-            Toast.makeText(this,
-                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
-        } else {
+        if (intentType == null) {
+            intentType = "text";
             stringType = getString(R.string.app_name);
         }
-        return intentText;
+        // Probably remove this following redundant part
+        if (!"text".equals(intentType.split("/")[0])) {
+            intentType = intentType.split("/")[0];
+            Toast.makeText(this, unsupported_mimetype + intentType,
+                    Toast.LENGTH_LONG).show();
+        }
+        // Return immediately if there's text from the intent, not from the included content
+        if (intentText != null) {
+            return intentText;
+        }
+
+        // Handle content that came with the intent
+        Bundle extras = intent.getExtras();
+        // Exit if there's no content
+        if (extras == null) {
+            return null;
+        }
+        if (Intent.ACTION_SEND.equals(intentAction)) {
+            Uri singleFile;
+            singleFile = (Uri) extras.get(Intent.EXTRA_STREAM);
+
+            ContentResolver contentResolver = getContentResolver();
+            try {
+                assert singleFile != null;
+                InputStream inputStream = contentResolver.openInputStream(singleFile);
+                assert inputStream != null;
+                // Returns the file size in bytes
+                //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
+                if (inputStream.available() > 1307) {
+                    //Log.w("getStringFromIntent", "Data too large to share");
+                    Toast.makeText(this,
+                            getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
+                }
+                BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder total = new StringBuilder();
+                for (String line; (line = r.readLine()) != null; ) {
+                    total.append(line).append('\n');
+                }
+                inputStream.close();
+                intentText = total.toString();
+                //Log.i("getStringFromIntent", "intentText: " + intentText);
+                return intentText;
+
+            } catch (IOException e) {
+                // Handle exceptions
+                Log.e("StreamProcessing", "Error accessing stream data", e);
+            }
+            Toast.makeText(this, "Unable to parse the data", Toast.LENGTH_LONG).show();
+            Log.wtf("getStringFromIntent", "Intent.ACTION_SEND: how did you get here?");
+            return null;
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
+            ArrayList<Uri> uris;
+            uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            Log.i("getStringFromIntent", "uris: " + uris);
+            Toast.makeText(this,
+                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
+        }
+        Log.wtf("getStringFromIntent", "You somehow reached the end...");
+        return null;
     }
 
     private Bitmap stringToQRcode(String stringForQRcode) {
@@ -321,12 +342,10 @@ public class MainActivity extends AppCompatActivity {
             stringForQRcode = getString(R.string.data_too_large);
             Log.i("stringToQRcode", "stringForQRcode is too large");
         }
-        if (stringForQRcode == null){
+        if (stringForQRcode == null || stringForQRcode.isEmpty() ){
+            // Not using .isBlank(), as we also want to create a QR code for white space/tabs/etc
+            // Not sure if people actually use it though, but wouldn't want to block that use case
             Log.i("stringToQRcode", "stringForQRcode is null");
-            stringForQRcode = no_data;
-        }
-        if (stringForQRcode.isEmpty() || stringForQRcode.isBlank()) {
-            Log.i("stringToQRcode", "stringForQRcode is empty");
             stringForQRcode = no_data;
         }
         try {
