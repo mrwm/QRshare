@@ -1,6 +1,6 @@
 # <img src="fastlane/metadata/android/en-US/images/icon.png" alt="drawing" style="width:64px"/> QRshare
 
-Share QR code links using android's share sheet.
+Share QR code with android's share sheet.
 
 ### Download
 <a href="https://f-droid.org/en/packages/com.wchung.qrshare/">
