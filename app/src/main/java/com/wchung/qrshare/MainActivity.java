@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
-        subtitleHint.setPadding(dp16, dp16, dp16, 0);
+        subtitleHint.setPadding(dp16-(dp2*3), dp16, dp16-(dp2*3), 0);
 
         // Set the text of the hint
         subtitleHint.setText(getString(R.string.qr_instructions));
@@ -177,12 +177,14 @@ public class MainActivity extends AppCompatActivity {
                     subtitleHint.setText(getString(R.string.qr_instructions));
                     TransitionManager.beginDelayedTransition(rootView, autoTransition);
                     setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+                    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 }
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+                subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -198,10 +200,12 @@ public class MainActivity extends AppCompatActivity {
             if(hasFocus) {
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+                subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             } else if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.qr_instructions));
                 TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+                subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             }
         });
 
@@ -214,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
         if (stringForQRcode != null) {
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
             setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             subtitleHint.setText(stringType);
         }
 
@@ -233,9 +238,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Move the text type hint out of the way of the text if there's a given text
         setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         if (tv.getText().toString().isEmpty()) {
             // Don't move the text type hint if there's no text
             setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         }
     }
 
