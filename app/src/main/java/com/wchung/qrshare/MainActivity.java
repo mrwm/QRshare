@@ -11,7 +11,9 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
@@ -108,6 +110,14 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // prep for android 15
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectUnsafeIntentLaunch()
+                    .build()
+            );
+        }
+
         dp16 = (int) convertDpToPixel(16, this);
         dp2 = (int) convertDpToPixel(2, this);
 
@@ -197,13 +207,12 @@ public class MainActivity extends AppCompatActivity {
             if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.app_name));
             }
+            TransitionManager.beginDelayedTransition(rootView, autoTransition);
             if(hasFocus) {
-                TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
                 subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             } else if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.qr_instructions));
-                TransitionManager.beginDelayedTransition(rootView, autoTransition);
                 setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
                 subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             }
@@ -318,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,
                     getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         }
-        Log.wtf("getStringFromIntent", "You somehow reached the end...");
+        Log.e("getStringFromIntent", "You somehow reached the end...");
         return null;
     }
 
@@ -466,6 +475,8 @@ public class MainActivity extends AppCompatActivity {
         if (stringForQRcode == null) {
             stringForQRcode = getString(R.string.no_data);
         }
-        outContent.setWebUri(Uri.parse(stringForQRcode));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            outContent.setWebUri(Uri.parse(stringForQRcode));
+        }
     }
 }

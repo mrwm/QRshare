@@ -15,9 +15,8 @@ android {
 
     defaultConfig {
         applicationId = "com.wchung.qrshare"
-        minSdk = 31
-        //noinspection OldTargetApi
-        targetSdk = 34
+        minSdk = 21 // Lowest possible that androidx.appcompat 1.7.0 supports
+        targetSdk = 35
         versionCode = 17
         versionName = "1.0.$versionCode"
 
