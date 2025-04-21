@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private File cacheFile;
     private String stringForQRcode;
     private boolean dataTooLarge;
-    private boolean disableContextMenu;
+    //private boolean disableContextMenu;
 
     private TextView subtitleHint;
     private AutoTransition autoTransition;
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
             stringForQRcode = no_data;
         }
         try {
-            disableContextMenu = false;
+            //disableContextMenu = false;
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                     BarcodeFormat.QR_CODE, qrSize, qrSize, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
-            disableContextMenu = true;
+            //disableContextMenu = true;
             Toast.makeText(this, "Error generating QR code", Toast.LENGTH_LONG).show();
             return null;
         }
@@ -384,7 +384,8 @@ public class MainActivity extends AppCompatActivity {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
-        if (disableContextMenu) {
+        if (stringToQRcode(stringForQRcode) == null) {
+        //if (disableContextMenu) {
             menu.findItem(R.id.copy).setEnabled(false);
             menu.findItem(R.id.share).setEnabled(false);
         }
@@ -393,7 +394,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Uri uriForFile = null;
-        if (!disableContextMenu) {
+        if (stringToQRcode(stringForQRcode) != null) {
+        //if (!disableContextMenu) {
             // Save the image to the cache
             saveBitmapToCache(qr_bitmap);
             uriForFile = FileProvider.getUriForFile(this,
