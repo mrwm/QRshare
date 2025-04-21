@@ -1,6 +1,7 @@
 package com.wchung.qrshare;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -39,7 +40,7 @@ public class StringUtil extends AppCompatActivity {
         return stringType;
     }
 
-    public String getStringFromIntent(Intent intent) {
+    public String getStringFromIntent(Context context, Intent intent) {
         String intentAction = intent.getAction();
         String intentType = intent.getType();
         Log.i("getStringFromIntent", "intentAction: " + intentAction);
@@ -61,8 +62,9 @@ public class StringUtil extends AppCompatActivity {
         if (Intent.ACTION_SEND.equals(intentAction)) {
             Uri singleFile;
             singleFile = (Uri) extras.get(Intent.EXTRA_STREAM);
+            Log.i("getStringFromIntent", "singleFile: " + singleFile);
 
-            ContentResolver contentResolver = getContentResolver();
+            ContentResolver contentResolver = context.getContentResolver();
             try {
                 assert singleFile != null;
                 InputStream inputStream = contentResolver.openInputStream(singleFile);

@@ -4,12 +4,9 @@ package com.wchung.qrshare;
 import android.app.assist.AssistContent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,27 +40,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-// *.xzing.*
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitArray;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-
 // java.*
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private Bitmap qr_bitmap;
@@ -124,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         // Do something about intent captures
         // Handles intent captures and returns the text values in a string
         // The function will also need to handle onNewIntent() as well
-        stringForQRcode = new StringUtil().getStringFromIntent(getIntent());
+        stringForQRcode = new StringUtil().getStringFromIntent(this, getIntent());
 
         // Get the string type from the intent
         String finalStringType = new StringUtil().getStringType(getIntent());
@@ -238,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
 
         // Grab the text from the new intent and update the textedit
-        stringForQRcode = new StringUtil().getStringFromIntent(intent);
+        stringForQRcode = new StringUtil().getStringFromIntent(this, intent);
         tv.setText(stringForQRcode);
 
         // Then update the QR code with the corresponding text
