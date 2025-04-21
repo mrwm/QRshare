@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv;
     private ImageView iv;
     private File cacheFile;
-    private String stringType;
     private String stringForQRcode;
     private boolean dataTooLarge;
     private boolean disableContextMenu;
@@ -130,6 +129,9 @@ public class MainActivity extends AppCompatActivity {
         stringForQRcode = getStringFromIntent(getIntent());
         //Log.i("onCreate", "stringForQRcode: " + stringForQRcode);
 
+        String stringType = new StringUtil().getStringType(getIntent());
+        String finalStringType = stringType;
+
         // Convert the string to a QR code
         qr_bitmap = stringToQRcode(stringForQRcode);
         // Create a function that takes a string and creates a QR code to cacheFile
@@ -182,7 +184,8 @@ public class MainActivity extends AppCompatActivity {
                 stringForQRcode = s.toString();
                 qr_bitmap = stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
-                subtitleHint.setText(stringType);
+                subtitleHint.setText(finalStringType);
+
                 if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                     subtitleHint.setText(getString(R.string.qr_instructions));
                     TransitionManager.beginDelayedTransition(rootView, autoTransition);
@@ -228,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
             setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
             subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            subtitleHint.setText(stringType);
+            subtitleHint.setText(finalStringType);
         }
 
     }
@@ -265,17 +268,6 @@ public class MainActivity extends AppCompatActivity {
 
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
         Log.i("getStringFromIntent", "intentText: " + intentText);
-        stringType = intentType;
-        if (intentType == null) {
-            intentType = "text";
-            stringType = getString(R.string.app_name);
-        }
-        // Probably remove this following redundant part
-        if (!"text".equals(intentType.split("/")[0])) {
-            intentType = intentType.split("/")[0];
-            Toast.makeText(this, unsupported_mimetype + intentType,
-                    Toast.LENGTH_LONG).show();
-        }
         // Return immediately if there's text from the intent, not from the included content
         if (intentText != null) {
             return intentText;
