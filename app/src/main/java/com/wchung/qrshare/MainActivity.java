@@ -71,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView iv;
     private File cacheFile;
     private String stringForQRcode;
-    private boolean dataTooLarge;
-    //private boolean disableContextMenu;
 
     private TextView subtitleHint;
     private AutoTransition autoTransition;
@@ -126,14 +124,13 @@ public class MainActivity extends AppCompatActivity {
         // Do something about intent captures
         // Handles intent captures and returns the text values in a string
         // The function will also need to handle onNewIntent() as well
-        stringForQRcode = getStringFromIntent(getIntent());
-        //Log.i("onCreate", "stringForQRcode: " + stringForQRcode);
+        stringForQRcode = new StringUtil().getStringFromIntent(getIntent());
 
-        String stringType = new StringUtil().getStringType(getIntent());
-        String finalStringType = stringType;
+        // Get the string type from the intent
+        String finalStringType = new StringUtil().getStringType(getIntent());
 
         // Convert the string to a QR code
-        qr_bitmap = stringToQRcode(stringForQRcode);
+        qr_bitmap = new StringUtil().stringToQRcode(stringForQRcode);
         // Create a function that takes a string and creates a QR code to cacheFile
         //saveBitmapToCache(qr_bitmap);
 
@@ -182,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 //Log.i("afterTextChanged", "string: " + s.toString());
                 stringForQRcode = s.toString();
-                qr_bitmap = stringToQRcode(stringForQRcode);
+                qr_bitmap = new StringUtil().stringToQRcode(stringForQRcode);
                 iv.setImageBitmap(qr_bitmap);
                 subtitleHint.setText(finalStringType);
 
@@ -241,11 +238,11 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
 
         // Grab the text from the new intent and update the textedit
-        stringForQRcode = getStringFromIntent(intent);
+        stringForQRcode = new StringUtil().getStringFromIntent(intent);
         tv.setText(stringForQRcode);
 
         // Then update the QR code with the corresponding text
-        qr_bitmap = stringToQRcode(stringForQRcode);
+        qr_bitmap = new StringUtil().stringToQRcode(stringForQRcode);
         iv.setImageBitmap(qr_bitmap);
 
         // Move the text type hint out of the way of the text if there's a given text
@@ -258,123 +255,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getStringFromIntent(Intent intent) {
-        dataTooLarge = false;
-        String intentAction = intent.getAction();
-        String intentType = intent.getType();
-        String unsupported_mimetype = getString(R.string.unsupported_mimetype);
-        Log.i("getStringFromIntent", "intentAction: " + intentAction);
-        Log.i("getStringFromIntent", "intentType: " + intentType);
-
-        String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        Log.i("getStringFromIntent", "intentText: " + intentText);
-        // Return immediately if there's text from the intent, not from the included content
-        if (intentText != null) {
-            return intentText;
-        }
-
-        // Handle content that came with the intent
-        Bundle extras = intent.getExtras();
-        // Exit if there's no content
-        if (extras == null) {
-            return null;
-        }
-        if (Intent.ACTION_SEND.equals(intentAction)) {
-            Uri singleFile;
-            singleFile = (Uri) extras.get(Intent.EXTRA_STREAM);
-
-            ContentResolver contentResolver = getContentResolver();
-            try {
-                assert singleFile != null;
-                InputStream inputStream = contentResolver.openInputStream(singleFile);
-                assert inputStream != null;
-                // Returns the file size in bytes
-                //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
-                if (inputStream.available() > 1307) {
-                    //Log.w("getStringFromIntent", "Data too large to share");
-                    Toast.makeText(this,
-                            getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
-                }
-                BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder total = new StringBuilder();
-                for (String line; (line = r.readLine()) != null; ) {
-                    total.append(line).append('\n');
-                }
-                inputStream.close();
-                intentText = total.toString();
-                //Log.i("getStringFromIntent", "intentText: " + intentText);
-                return intentText;
-
-            } catch (IOException e) {
-                // Handle exceptions
-                Log.e("StreamProcessing", "Error accessing stream data", e);
-            }
-            Toast.makeText(this, "Unable to parse the data", Toast.LENGTH_LONG).show();
-            Log.wtf("getStringFromIntent", "Intent.ACTION_SEND: how did you get here?");
-            return null;
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
-            ArrayList<Uri> uris;
-            uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            Log.i("getStringFromIntent", "uris: " + uris);
-            Toast.makeText(this,
-                    getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
-        }
-        Log.e("getStringFromIntent", "You somehow reached the end...");
-        return null;
-    }
-
-    private Bitmap stringToQRcode(String stringForQRcode) {
-        String no_data = getString(R.string.no_data);
-        int qrSize;
-        qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
-                Resources.getSystem().getDisplayMetrics().heightPixels);
-        BitMatrix bitMatrix;
-        Bitmap bitmap_image;
-
-        if (stringForQRcode != null) {
-            int stringLength = stringForQRcode.length();
-            //Log.i("stringToQRcode", "stringLength: " + stringLength);
-            // 1273 chars is the largest possible string length
-            dataTooLarge = (stringLength > 1272);
-        }
-        if (dataTooLarge) {
-            stringForQRcode = getString(R.string.data_too_large);
-            Log.i("stringToQRcode", "stringForQRcode is too large");
-        }
-        if (stringForQRcode == null || stringForQRcode.isEmpty() ){
-            // Not using .isBlank(), as we also want to create a QR code for white space/tabs/etc
-            // Not sure if people actually use it though, but wouldn't want to block that use case
-            Log.i("stringToQRcode", "stringForQRcode is null");
-            stringForQRcode = no_data;
-        }
-        try {
-            //disableContextMenu = false;
-            Map<EncodeHintType, Object> hints = new HashMap<>();
-            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-            bitMatrix = new QRCodeWriter().encode(stringForQRcode,
-                    BarcodeFormat.QR_CODE, qrSize, qrSize, hints);
-        } catch (WriterException ex) {
-            Log.e("QRCodeGenerator", "Error generating QR code", ex);
-            //disableContextMenu = true;
-            Toast.makeText(this, "Error generating QR code", Toast.LENGTH_LONG).show();
-            return null;
-        }
-
-        bitmap_image = Bitmap.createBitmap(qrSize, qrSize, Bitmap.Config.RGB_565);
-        int[] rowPixels = new int[qrSize];
-        BitArray row = new BitArray(qrSize);
-        for (int y = 0; y < qrSize; y++) {
-            row = bitMatrix.getRow(y, row);
-            for (int x = 0; x < qrSize; x++) {
-                rowPixels[x] = row.get(x) ? Color.BLACK : Color.WHITE;
-            }
-            bitmap_image.setPixels(rowPixels, 0, qrSize, 0, y, qrSize, 1);
-        }
-
-        return bitmap_image;
-    }
-
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view,
                                     ContextMenu.ContextMenuInfo menuInfo) {
@@ -384,8 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
-        if (stringToQRcode(stringForQRcode) == null) {
-        //if (disableContextMenu) {
+        if (new StringUtil().stringToQRcode(stringForQRcode) == null) {
             menu.findItem(R.id.copy).setEnabled(false);
             menu.findItem(R.id.share).setEnabled(false);
         }
@@ -394,8 +273,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Uri uriForFile = null;
-        if (stringToQRcode(stringForQRcode) != null) {
-        //if (!disableContextMenu) {
+        if (new StringUtil().stringToQRcode(stringForQRcode) != null) {
             // Save the image to the cache
             saveBitmapToCache(qr_bitmap);
             uriForFile = FileProvider.getUriForFile(this,
