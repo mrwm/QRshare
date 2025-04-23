@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/popup_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:elevation="4dp">
+
+    <ImageView
+        android:id="@+id/popup_qr_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/qr_code_description" />    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/popup_edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/popup_qr_image"
+        android:layout_below="@id/popup_qr_image"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="-20dp"
+        android:contentDescription="Edit text"
+        app:fabSize="mini"
+        app:srcCompat="@drawable/ic_edit"
+        app:backgroundTint="#2196F3"
+        app:tint="@android:color/white" />
+
+</RelativeLayout>

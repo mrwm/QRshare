@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.activity)
     implementation(libs.ui.android)
+    implementation(libs.material) // Material Design components
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
