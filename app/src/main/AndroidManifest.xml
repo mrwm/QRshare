@@ -24,9 +24,7 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
-        </provider>
-
-        <activity
+        </provider>        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
@@ -35,6 +33,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>        <activity
+            android:name=".PopupActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Dialog">
             <intent-filter android:label="@string/app_intent_filter_description">
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
