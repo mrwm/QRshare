@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.wchung.qrshare"
-    compileSdk = 34
+    compileSdk = 35
 
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
