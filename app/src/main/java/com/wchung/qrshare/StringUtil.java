@@ -73,7 +73,7 @@ public class StringUtil extends AppCompatActivity {
                 //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
                 if (inputStream.available() > 1307) {
                     Log.w("getStringFromIntent", "Data too large to share");
-                    Toast.makeText(this,
+                    Toast.makeText(context,
                             App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                 }
                 BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
@@ -90,21 +90,21 @@ public class StringUtil extends AppCompatActivity {
                 // Handle exceptions
                 Log.e("StreamProcessing", "Error accessing stream data", e);
             }
-            //Toast.makeText(this, "Unable to parse the data", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Unable to parse the data", Toast.LENGTH_LONG).show();
             Log.wtf("getStringFromIntent", "Intent.ACTION_SEND: how did you get here?");
             return null;
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
             ArrayList<Uri> uris;
             uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             Log.i("getStringFromIntent", "uris: " + uris);
-            Toast.makeText(this,
+            Toast.makeText(context,
                     App.getRes().getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         }
         Log.e("getStringFromIntent", "You somehow reached the end...");
         return null;
     }
 
-    public Bitmap stringToQRcode(String stringForQRcode) {
+    public Bitmap stringToQRcode(Context context, String stringForQRcode) {
         String no_data = App.getRes().getString(R.string.no_data);
         int qrSize;
         qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
@@ -126,7 +126,7 @@ public class StringUtil extends AppCompatActivity {
                     BarcodeFormat.QR_CODE, qrSize, qrSize, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
-            Toast.makeText(this, "Error generating QR code", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Error generating QR code", Toast.LENGTH_LONG).show();
             return null;
         }
 

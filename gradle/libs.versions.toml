@@ -19,4 +19,3 @@ ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref =
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-

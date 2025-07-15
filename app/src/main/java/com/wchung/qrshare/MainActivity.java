@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         String finalStringType = new StringUtil().getStringType(getIntent());
 
         // Convert the string to a QR code
-        qr_bitmap = new StringUtil().stringToQRcode(stringForQRcode);
+        qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
         // Create a function that takes a string and creates a QR code to cacheFile
         //saveBitmapToCache(qr_bitmap);
 
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 //Log.i("afterTextChanged", "string: " + s.toString());
                 stringForQRcode = s.toString();
-                qr_bitmap = new StringUtil().stringToQRcode(stringForQRcode);
+                qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode); // crashes the app if null
                 iv.setImageBitmap(qr_bitmap);
                 subtitleHint.setText(finalStringType);
 
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(stringForQRcode);
 
         // Then update the QR code with the corresponding text
-        qr_bitmap = new StringUtil().stringToQRcode(stringForQRcode);
+        qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
         iv.setImageBitmap(qr_bitmap);
 
         // Move the text type hint out of the way of the text if there's a given text
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
-        if (new StringUtil().stringToQRcode(stringForQRcode) == null) {
+        if (new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode) == null) {
             menu.findItem(R.id.copy).setEnabled(false);
             menu.findItem(R.id.share).setEnabled(false);
         }
@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Uri uriForFile = null;
-        if (new StringUtil().stringToQRcode(stringForQRcode) != null) {
+        if (new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode) != null) {
             // Save the image to the cache
             saveBitmapToCache(qr_bitmap);
             uriForFile = FileProvider.getUriForFile(this,
