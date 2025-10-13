@@ -1,0 +1,7 @@
+Maintenance release: Basically just version 18, but version bumped
+- Lower the minsdk to Android 5
+- Target android 15
+- Change the logo color from black to grey
+- Enable QR code for blank spaces
+- Remove the background for the background placeholder image when QR code fails to generate
+- Fix bug where app crashes if user clicks the menu when there is no QR code
