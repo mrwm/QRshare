@@ -17,7 +17,7 @@ android {
         applicationId = "com.wchung.qrshare"
         minSdk = 21 // Lowest possible that androidx.appcompat 1.7.0 supports
         targetSdk = 35
-        versionCode = 17
+        versionCode = 18
         versionName = "1.0.$versionCode"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
