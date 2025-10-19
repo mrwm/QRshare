@@ -42,6 +42,7 @@
             android:textAlignment="viewStart"
             android:autoSizeTextType="uniform"
             android:hint="@string/no_data"
+            android:imeOptions="flagNoFullscreen"
             app:autoSizeTextType="uniform"
             tools:ignore="Autofill" />
     </FrameLayout>
