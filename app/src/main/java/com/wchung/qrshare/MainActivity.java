@@ -177,12 +177,6 @@ public class MainActivity extends AppCompatActivity {
                 iv.setImageBitmap(qr_bitmap);
                 subtitleHint.setText(finalStringType);
 
-                if (tv.getText() == null || tv.getText().toString().isEmpty()) {
-                    subtitleHint.setText(getString(R.string.qr_instructions));
-                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
-                    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
-                    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-                }
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
