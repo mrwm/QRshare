@@ -124,14 +124,15 @@ public class MainActivity extends AppCompatActivity {
         //saveBitmapToCache(qr_bitmap);
 
         // Set the image view to the QR code
-        iv = findViewById(R.id.imageViewQRCode);
+        iv = findViewById(R.id.image_view_qr);
         iv.setImageBitmap(qr_bitmap);
 
-        // Set the margins of the image view
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-        lp.setMargins(dp16*2, dp16*2, dp16*2, dp16*2);
-        iv.setLayoutParams(lp);
-        iv.setClipToOutline(true); // an attempt to round the corners of the image
+        // Make the image corners round
+        iv.setClipToOutline(true);
+
+        // Setup for the image frame
+        FrameLayout ifv = findViewById(R.id.image_frame);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) ifv.getLayoutParams();
 
         // Set the linear layout to the correct orientation using code instead of xml
         int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -139,8 +140,10 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout screenOrientation = findViewById(R.id.main);
         if (screenWidth > screenHeight) {
             screenOrientation.setOrientation(LinearLayout.HORIZONTAL);
+            lp.setMargins(dp16*4, dp16, dp16*3, dp16);
         } else {
             screenOrientation.setOrientation(LinearLayout.VERTICAL);
+            lp.setMargins(dp16, dp16, dp16, dp16);
         }
 
         // Clear the focus when the image view is tapped. Just a pretty touch effect
