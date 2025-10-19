@@ -17,7 +17,6 @@ import android.text.TextWatcher;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -25,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -78,6 +78,12 @@ public class MainActivity extends AppCompatActivity {
         marginLayoutParams.setMargins(left, top, right, bottom);
         view.setLayoutParams(marginLayoutParams);
     }
+
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
                 subtitleHint.setText(getString(R.string.qr_instructions));
                 setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
                 subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            }
+            if (!hasFocus) {
+                hideKeyboard(tv);
             }
         });
 
