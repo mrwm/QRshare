@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -124,6 +125,17 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
         lp.setMargins(dp16*2, dp16*2, dp16*2, dp16*2);
         iv.setLayoutParams(lp);
+        iv.setClipToOutline(true); // an attempt to round the corners of the image
+
+        // Set the linear layout to the correct orientation using code instead of xml
+        int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        LinearLayout screenOrientation = findViewById(R.id.main);
+        if (screenWidth > screenHeight) {
+            screenOrientation.setOrientation(LinearLayout.HORIZONTAL);
+        } else {
+            screenOrientation.setOrientation(LinearLayout.VERTICAL);
+        }
 
         // Clear the focus when the image view is tapped. Just a pretty touch effect
         iv.setOnClickListener(view -> tv.clearFocus());
@@ -185,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Animate layout change for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
-            Log.i("onFocusChange", "hasFocus: " + hasFocus);
+            //Log.i("onFocusChange", "hasFocus: " + hasFocus);
             if (tv.getText() == null || tv.getText().toString().isEmpty()) {
                 subtitleHint.setText(getString(R.string.app_name));
             }
