@@ -43,11 +43,11 @@ public class StringUtil extends AppCompatActivity {
     public String getStringFromIntent(Context context, Intent intent) {
         String intentAction = intent.getAction();
         String intentType = intent.getType();
-        Log.i("getStringFromIntent", "intentAction: " + intentAction);
-        Log.i("getStringFromIntent", "intentType: " + intentType);
+        //Log.i("getStringFromIntent", "intentAction: " + intentAction);
+        //Log.i("getStringFromIntent", "intentType: " + intentType);
 
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        Log.i("getStringFromIntent", "intentText: " + intentText);
+        //Log.i("getStringFromIntent", "intentText: " + intentText);
         // Return immediately if there's text from the intent, not from the included content
         if (intentText != null) {
             return intentText;
@@ -62,7 +62,7 @@ public class StringUtil extends AppCompatActivity {
         if (Intent.ACTION_SEND.equals(intentAction)) {
             Uri singleFile;
             singleFile = (Uri) extras.get(Intent.EXTRA_STREAM);
-            Log.i("getStringFromIntent", "singleFile: " + singleFile);
+            //Log.i("getStringFromIntent", "singleFile: " + singleFile);
 
             ContentResolver contentResolver = context.getContentResolver();
             try {
@@ -96,7 +96,7 @@ public class StringUtil extends AppCompatActivity {
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
             ArrayList<Uri> uris;
             uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            Log.i("getStringFromIntent", "uris: " + uris);
+            //Log.i("getStringFromIntent", "uris: " + uris);
             Toast.makeText(context,
                     App.getRes().getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         }
@@ -115,7 +115,7 @@ public class StringUtil extends AppCompatActivity {
         if (stringForQRcode == null || stringForQRcode.isEmpty() ){
             // Not using .isBlank(), as we also want to create a QR code for white space/tabs/etc
             // Not sure if people actually use it though, but wouldn't want to block that use case
-            Log.i("stringToQRcode", "stringForQRcode is null");
+            //Log.i("stringToQRcode", "stringForQRcode is null");
             stringForQRcode = no_data;
         }
         try {
