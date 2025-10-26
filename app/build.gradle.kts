@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.wchung.qrshare"
-    compileSdk = 35
+    compileSdk = 36
 
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
@@ -15,8 +15,8 @@ android {
 
     defaultConfig {
         applicationId = "com.wchung.qrshare"
-        minSdk = 21 // Lowest possible that androidx.appcompat 1.7.0 supports
-        targetSdk = 35
+        minSdk = 21 // Lowest possible that androidx.appcompat 1.7.0 supports (Android 5)
+        targetSdk = 36
         versionCode = 19
         versionName = "1.0.$versionCode"
 
