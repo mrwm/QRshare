@@ -38,6 +38,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -65,6 +67,13 @@ public class MainActivity extends AppCompatActivity {
     public static float convertDpToPixel(float dp, @NonNull Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
                 DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    private static RoundedBitmapDrawable roundifyImage(@NonNull ImageView imageView, Bitmap bitmapImage, int cornerRadius, @NonNull Context context) {
+        RoundedBitmapDrawable dr =
+                RoundedBitmapDrawableFactory.create(imageView.getResources(), bitmapImage);
+        dr.setCornerRadius(convertDpToPixel(cornerRadius, context));
+        return dr;
     }
 
     private static void setViewMargins(View view, int left, int top, int right, int bottom) {
@@ -125,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set the image view to the QR code
         iv = findViewById(R.id.image_view_qr);
-        iv.setImageBitmap(qr_bitmap);
+        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16, this));
 
         // Make the image corners round
         iv.setClipToOutline(true);
@@ -150,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         iv.setOnClickListener(view -> tv.clearFocus());
 
         // Open a menu when long pressing the image
-        this.registerForContextMenu(iv);
+        MainActivity.this.registerForContextMenu(iv);
 
         // Set the text view to the stringForQRcode
         tv = findViewById(R.id.qr_subtitle);
@@ -158,15 +167,15 @@ public class MainActivity extends AppCompatActivity {
         //Log.i("onCreate", "stringType: " + stringType);
 
         // The wild mess to programmatically create a TextView :)
-        subtitleHint = new TextView(this);
+        subtitleHint = new TextView(MainActivity.this);
         subtitleHint.setId(View.generateViewId());
 
         // Set the background color of the hint
         TypedValue windowBackground = new TypedValue();
-        this.getTheme().resolveAttribute(
+        MainActivity.this.getTheme().resolveAttribute(
                 android.R.attr.windowBackground, windowBackground, true);
         subtitleHint.setBackground(
-                ContextCompat.getDrawable(this, windowBackground.resourceId));
+                ContextCompat.getDrawable(MainActivity.this, windowBackground.resourceId));
 
         setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
         subtitleHint.setGravity(Gravity.TOP | Gravity.START);
@@ -183,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 //Log.i("afterTextChanged", "string: " + s.toString());
                 stringForQRcode = s.toString();
                 qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode); // crashes the app if null
-                iv.setImageBitmap(qr_bitmap);
+                iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16, MainActivity.this));
                 subtitleHint.setText(finalStringType);
 
             }
@@ -243,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Then update the QR code with the corresponding text
         qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
-        iv.setImageBitmap(qr_bitmap);
+        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16, MainActivity.this));
 
         // Move the text type hint out of the way of the text if there's a given text
         setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
@@ -276,8 +285,8 @@ public class MainActivity extends AppCompatActivity {
         if (new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode) != null) {
             // Save the image to the cache
             saveBitmapToCache(qr_bitmap);
-            uriForFile = FileProvider.getUriForFile(this,
-                    this.getPackageName() + ".provider", cacheFile);
+            uriForFile = FileProvider.getUriForFile(MainActivity.this,
+                    MainActivity.this.getPackageName() + ".provider", cacheFile);
         }
 
         // Handle the menu item clicks
@@ -288,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
             ClipData clip = ClipData.newUri(getContentResolver(), "Image", uriForFile);
             clipboard.setPrimaryClip(clip);
 
-            Toast.makeText(this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.menu_copy, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.edit) {
             // Kinda funny, I used this menu option to test the animations for the text view.
             // I didn't expect this that I would have a use for this menu item :)
@@ -305,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
             Intent shareIntent = Intent.createChooser(sendIntent, "Share QR code using");
             startActivity(shareIntent);
         } else {
-            Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, item.getTitle(), Toast.LENGTH_SHORT).show();
         }
         return true;
     }
