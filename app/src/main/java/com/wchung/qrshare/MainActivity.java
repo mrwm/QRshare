@@ -210,21 +210,20 @@ public class MainActivity extends AppCompatActivity {
         // Animate layout change for the hint when the textbox is selected (or not)
         tv.setOnFocusChangeListener((v, hasFocus) -> {
             //Log.i("onFocusChange", "hasFocus: " + hasFocus);
-            if (tv.getText() == null || tv.getText().toString().isEmpty()) {
-                subtitleHint.setText(getString(R.string.app_name));
-            }
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
             if(hasFocus) {
+                subtitleHint.setText(getString(R.string.app_name));
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
                 subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            } else if (tv.getText() == null || tv.getText().toString().isEmpty()) {
-                subtitleHint.setText(getString(R.string.qr_instructions));
-                setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
-                subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            }
-            if (!hasFocus) {
+            } else {
                 hideKeyboard(tv);
+                if (tv.getText() == null || tv.getText().toString().isEmpty()) {
+                    subtitleHint.setText(getString(R.string.qr_instructions));
+                    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+                    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                }
             }
+
         });
 
         // Get the root view and create a transition.
@@ -261,6 +260,8 @@ public class MainActivity extends AppCompatActivity {
             // Don't move the text type hint if there's no text
             setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
             subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            subtitleHint.setText(getString(R.string.qr_instructions));
+
         }
     }
 
