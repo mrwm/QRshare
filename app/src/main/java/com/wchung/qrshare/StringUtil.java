@@ -42,9 +42,7 @@ public class StringUtil extends AppCompatActivity {
 
     public String getStringFromIntent(Context context, Intent intent) {
         String intentAction = intent.getAction();
-        String intentType = intent.getType();
         //Log.i("getStringFromIntent", "intentAction: " + intentAction);
-        //Log.i("getStringFromIntent", "intentType: " + intentType);
 
         String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
         //Log.i("getStringFromIntent", "intentText: " + intentText);
