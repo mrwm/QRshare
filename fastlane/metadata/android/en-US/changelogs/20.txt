@@ -1,0 +1,2 @@
+* Roundify the QR code image corners
+* Make the QR code bigger for larger screen sizes (eg: tablets)
