@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -58,6 +60,7 @@ public class StringUtil extends AppCompatActivity {
             return null;
         }
         if (Intent.ACTION_SEND.equals(intentAction)) {
+            //Log.d("getStringFromIntent", "ITS A FILE!");
             Uri singleFile;
             singleFile = (Uri) extras.get(Intent.EXTRA_STREAM);
             //Log.i("getStringFromIntent", "singleFile: " + singleFile);
@@ -74,6 +77,20 @@ public class StringUtil extends AppCompatActivity {
                     Toast.makeText(context,
                             App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                 }
+
+                if (!getStringType(intent).startsWith("text/")) {
+                    Log.i("getStringFromIntent", "ITS NOT A TEXT FILE!");
+                    try {
+                        InputStream in = context.getContentResolver().openInputStream(singleFile);
+                        assert in != null;
+                        byte[] bytes = getBytes(in);
+                        intentText = Base64.encodeToString(bytes,Base64.DEFAULT);
+                        return "data:" + getStringType(intent) + ";base64," + intentText;
+                    } catch (Exception e) {
+                        Log.e("StreamProcessing", "Error accessing stream data", e);
+                    }
+                }
+
                 BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder total = new StringBuilder();
                 for (String line; (line = r.readLine()) != null; ) {
@@ -140,6 +157,17 @@ public class StringUtil extends AppCompatActivity {
         }
 
         return bitmap_image;
+    }
+
+    public static byte[] getBytes(InputStream inputStream) throws IOException {
+        int bufferSize = 1024;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] byteArray = new byte[bufferSize];
+        int len;
+        while ((len = inputStream.read(byteArray)) != -1) {
+            byteArrayOutputStream.write(byteArray, 0, len);
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
 }
