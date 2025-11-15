@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        EdgeToEdge.enable(MainActivity.this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -113,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
             );
         }
 
-        dp16 = (int) convertDpToPixel(16, this);
-        dp2 = (int) convertDpToPixel(2, this);
+        dp16 = (int) convertDpToPixel(16, MainActivity.this);
+        dp2 = (int) convertDpToPixel(2, MainActivity.this);
 
         // Define the cache file location
         cacheFile = new File(getCacheDir(), "QR_image.jpg");
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         // Do something about intent captures
         // Handles intent captures and returns the text values in a string
         // The function will also need to handle onNewIntent() as well
-        stringForQRcode = new StringUtil().getStringFromIntent(this, getIntent());
+        stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
 
         // Get the string type from the intent
         String finalStringType = new StringUtil().getStringType(getIntent());
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set the image view to the QR code
         iv = findViewById(R.id.image_view_qr);
-        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16, this));
+        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
 
         // Make the image corners round
         iv.setClipToOutline(true);
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 //Log.i("afterTextChanged", "string: " + s.toString());
                 stringForQRcode = s.toString();
                 qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode); // crashes the app if null
-                iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16, MainActivity.this));
+                iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
                 subtitleHint.setText(finalStringType);
 
             }
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Then update the QR code with the corresponding text
         qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
-        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16, MainActivity.this));
+        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
 
         // Move the text type hint out of the way of the text if there's a given text
         setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
