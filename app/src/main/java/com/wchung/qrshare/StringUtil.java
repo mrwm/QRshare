@@ -62,7 +62,8 @@ public class StringUtil extends AppCompatActivity {
         if (Intent.ACTION_SEND.equals(intentAction)) {
             //Log.d("getStringFromIntent", "ITS A FILE!");
             Uri singleFile;
-            singleFile = (Uri) extras.get(Intent.EXTRA_STREAM);
+            // singleFile = extras.getParcelable(Intent.EXTRA_STREAM, Uri.class); for API >= 33
+            singleFile = extras.getParcelable(Intent.EXTRA_STREAM);
             //Log.i("getStringFromIntent", "singleFile: " + singleFile);
 
             ContentResolver contentResolver = context.getContentResolver();
@@ -78,12 +79,11 @@ public class StringUtil extends AppCompatActivity {
                             App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                 }
 
+                // Encode anything not text to Base64
                 if (!getStringType(intent).startsWith("text/")) {
-                    Log.i("getStringFromIntent", "ITS NOT A TEXT FILE!");
+                    Log.d("getStringFromIntent", "ITS NOT A TEXT FILE!");
                     try {
-                        InputStream in = context.getContentResolver().openInputStream(singleFile);
-                        assert in != null;
-                        byte[] bytes = getBytes(in);
+                        byte[] bytes = getBytes(inputStream);
                         intentText = Base64.encodeToString(bytes,Base64.DEFAULT);
                         return "data:" + getStringType(intent) + ";base64," + intentText;
                     } catch (Exception e) {
@@ -91,6 +91,7 @@ public class StringUtil extends AppCompatActivity {
                     }
                 }
 
+                // Otherwise, just read the file
                 BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder total = new StringBuilder();
                 for (String line; (line = r.readLine()) != null; ) {
@@ -110,8 +111,9 @@ public class StringUtil extends AppCompatActivity {
             return null;
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
             ArrayList<Uri> uris;
+            //uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri.class); for API >= 33
             uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            //Log.i("getStringFromIntent", "uris: " + uris);
+            Log.d("getStringFromIntent", "uris: " + uris);
             Toast.makeText(context,
                     App.getRes().getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         }
