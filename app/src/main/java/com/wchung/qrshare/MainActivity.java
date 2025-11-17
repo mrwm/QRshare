@@ -50,6 +50,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+// Google material color
+//import com.google.android.material.color.DynamicColors;
+
+
 public class MainActivity extends AppCompatActivity {
     private Bitmap qr_bitmap;
     private TextView tv;
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //DynamicColors.applyToActivitiesIfAvailable(this.getApplication());
         EdgeToEdge.enable(MainActivity.this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

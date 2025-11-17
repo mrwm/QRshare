@@ -17,7 +17,7 @@ android {
         applicationId = "com.wchung.qrshare"
         minSdk = 21 // Lowest possible that androidx.appcompat 1.7.0 supports (Android 5)
         targetSdk = 36
-        versionCode = 21
+        versionCode = 22
         versionName = "1.0.$versionCode"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.activity)
     implementation(libs.ui.android)
+    //implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
