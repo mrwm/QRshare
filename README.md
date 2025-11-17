@@ -18,6 +18,16 @@ Share QR code with android's share sheet.
     alt="Get qrshare on Google Play"
     height="75">
 </a>
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mrwm/QRshare">
+  <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/b1c8ac6f2ab08497189721a788a5763e28ff64cd/assets/graphics/badge_obtainium.png"
+    alt="Get it on Obtainium"
+    height="75">
+</a>
+<a href="https://github.com/mrwm/QRshare/releases/latest">
+  <img src="https://github.com/machiav3lli/oandbackupx/blob/034b226cea5c1b30eb4f6a6f313e4dadcbb0ece4/badge_github.png"
+    alt="Get qrshare on Github"
+    height="75">
+</a>
 
 ---
 
