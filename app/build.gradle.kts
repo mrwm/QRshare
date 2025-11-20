@@ -45,11 +45,11 @@ android {
 dependencies {
 
     implementation(libs.appcompat)
-    implementation(libs.activity)
+    //implementation(libs.activity)
     implementation(libs.ui.android)
     //implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+    //testImplementation(libs.junit)
+    //androidTestImplementation(libs.ext.junit)
+    //androidTestImplementation(libs.espresso.core)
     implementation(libs.core) // used in place of xzing library
 }
