@@ -1,6 +1,14 @@
-# <img src="fastlane/metadata/android/en-US/images/icon.png" alt="drawing" style="width:64px"/> QRshare
+<div align="center">
 
-Share QR code with android's share sheet.
+<img width="" src="fastlane/metadata/android/en-US/images/featureGraphic.png" alt="QRshare: Share QR code with android's share sheet." align="center">
+
+[![GitHub stars](https://img.shields.io/github/stars/mrwm/QRshare?style=for-the-badge)](https://github.com/mrwm/QRshare/stargazers)
+[![GitHub downloads](https://img.shields.io/github/downloads/mrwm/QRshare/total.svg?style=for-the-badge)](https://github.com/mrwm/QRshare/releases/)
+[![GitHub latest release](https://img.shields.io/github/v/release/mrwm/QRshare?display_name=tag&style=for-the-badge)](https://github.com/mrwm/QRshare/releases/latest)
+
+</div>
+
+---
 
 ### Download
 <a href="https://f-droid.org/en/packages/com.wchung.qrshare/">
@@ -28,8 +36,6 @@ Share QR code with android's share sheet.
     alt="Get qrshare on Github"
     height="75">
 </a>
-
----
 
 ### Features:
 - Dark and Light theme support
