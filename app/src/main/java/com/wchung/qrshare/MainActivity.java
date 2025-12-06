@@ -11,6 +11,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -49,6 +51,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 // Google material color
 //import com.google.android.material.color.DynamicColors;
@@ -97,6 +101,25 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
+    private void updateQRui(String updatedStringForQRcode, String updatedStringType, Bitmap updatedQr_bitmap){
+        // Update the text box
+        tv.setText(updatedStringForQRcode);
+
+        // Then update the QR code with the corresponding text
+        iv.setImageDrawable(roundifyImage(iv, updatedQr_bitmap, dp16/2, MainActivity.this));
+
+        // Move the text type hint out of the way of the text if there's a given text
+        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+        subtitleHint.setText(updatedStringType);
+        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        if (tv.getText().toString().isEmpty()) {
+            // Don't move the text type hint if there's no text
+            setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            subtitleHint.setText(getString(R.string.qr_instructions));
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +151,16 @@ public class MainActivity extends AppCompatActivity {
         // Handles intent captures and returns the text values in a string
         // The function will also need to handle onNewIntent() as well
         stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
+//        ExecutorService executor = Executors.newSingleThreadExecutor();
+//        Handler handler = new Handler(Looper.getMainLooper());
+//
+//        executor.execute(() -> {
+//            //Background work here
+//            stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
+//            handler.post(() -> {
+//                //UI Thread work here
+//            });
+//        });
 
         // Get the string type from the intent
         String finalStringType = new StringUtil().getStringType(getIntent());
@@ -252,22 +285,27 @@ public class MainActivity extends AppCompatActivity {
 
         // Grab the text from the new intent and update the textedit
         stringForQRcode = new StringUtil().getStringFromIntent(this, intent);
-        tv.setText(stringForQRcode);
+        //tv.setText(stringForQRcode);
 
         // Then update the QR code with the corresponding text
         qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
-        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
+        //iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
 
         // Move the text type hint out of the way of the text if there's a given text
-        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        if (tv.getText().toString().isEmpty()) {
-            // Don't move the text type hint if there's no text
-            setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
-            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            subtitleHint.setText(getString(R.string.qr_instructions));
+        //setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+        //subtitleHint.setText(new StringUtil().getStringType(intent));
+        //subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        //if (tv.getText().toString().isEmpty()) {
+        //    // Don't move the text type hint if there's no text
+        //    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+        //    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        //    subtitleHint.setText(getString(R.string.qr_instructions));
+        //}
 
-        }
+        // welp, this was one part of an attempt to try get the base64 thing in StringUtil
+        // to run in a background thread. It didn't work.
+        updateQRui(stringForQRcode, new StringUtil().getStringType(intent), qr_bitmap);
+
     }
 
     @Override
