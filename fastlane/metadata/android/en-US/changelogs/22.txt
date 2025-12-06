@@ -1,0 +1,4 @@
+* Make corners consistent with the text box radius
+* Enable sharing non-text files to QR share
+* Upgrade AGP version
+
