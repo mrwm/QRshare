@@ -1,6 +1,5 @@
 package com.wchung.qrshare;
 
-import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -85,55 +85,39 @@ public class StringUtil extends AppCompatActivity {
                             App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                 }
 
-
-                // I tried running the onNewIntent stuff in the background, but java does not like
-                // it if I tried to run anything with context passed in the background thread.
-                // > java.lang.RuntimeException: Can't create handler inside thread Thread[pool-4-thread-1,5,main] that has not called Looper.prepare()
-
-                // So the next attempt is to just run the code that handles the base64 encoding
-                // in the background instead.
-                // This brings up another problem: I don't know how to update the text and QR code
-                // after the encoding finishes :P
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 Handler handler = new Handler(Looper.getMainLooper());
-
-                executor.execute(() -> {
-
-                    // Background work here
-                    // Encode anything not text to Base64
-                    if (!getStringType(intent).startsWith("text/")) {
-                        Log.d("getStringFromIntent", "ITS NOT A TEXT FILE!");
-                        //Toast.makeText(context,
-                        //        App.getRes().getString(R.string.encoding), Toast.LENGTH_LONG).show();
-                        try {
-                            byte[] bytes = getBytes(inputStream);
-                            intentText.set(Base64.encodeToString(bytes, Base64.DEFAULT));
-                            //return "data:" + getStringType(intent) + ";base64," + finalIntentText;
-                            // Create the text message with a string.
-                            Intent sendIntent = new Intent(StringUtil.this, MainActivity.class);
-                            sendIntent.setAction(Intent.ACTION_SEND);
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, intentText.get());
-                            sendIntent.setType("text/plain");
-                            // Try to invoke the intent.
-                            try {
-                                StringUtil.this.startActivity(sendIntent);
-                            } catch (ActivityNotFoundException e) {
-                                // Define what your app should do if no activity can handle the intent.
-                            }
-                        } catch (Exception e) {
-                            Log.e("StreamProcessing", "Error accessing stream data", e);
-                        }
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // update a reference to the ImageView with the decoded data?
                     }
-
-                    handler.post(() -> {
-                        // UI Thread work here
-                        intentText.set("loading");
-                        // and this part should have finished, but it continues...
-                    });
                 });
-                executor.shutdown();
+
+                // Encode anything not text to Base64
+                if (!getStringType(intent).startsWith("text/")) {
+                    Log.d("getStringFromIntent", "ITS NOT A TEXT FILE!");
+                    try {
+                        byte[] bytes = getBytes(inputStream);
 
 
+                        executor.execute(() -> {
+                            // Background work here
+                            intentText.set(Base64.encodeToString(bytes, Base64.DEFAULT));
+                            Log.i("getStringFromIntent", "Setting the mld value");
+                            MainActivity.mld.postValue(intentText.get());
+                            handler.post(() -> {
+                                // UI Thread work here
+                                Log.i("getStringFromIntent", "intentText: " + intentText.get());
+                            });
+                        });
+
+
+                        //return "data:" + getStringType(intent) + ";base64," + intentText.get();
+                    } catch (Exception e) {
+                        Log.e("StreamProcessing", "Error accessing stream data", e);
+                    }
+                }
 
                 // Otherwise, just read the file
                 BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
@@ -216,5 +200,4 @@ public class StringUtil extends AppCompatActivity {
         return byteArrayOutputStream.toByteArray();
     }
 
-    
 }

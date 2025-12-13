@@ -11,14 +11,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -36,6 +35,7 @@ import android.widget.Toast;
 // androidx.*
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -44,6 +44,10 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.viewmodel.internal.ViewModelProviders;
 
 // java.*
 import java.io.ByteArrayOutputStream;
@@ -51,8 +55,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 // Google material color
 //import com.google.android.material.color.DynamicColors;
@@ -68,6 +70,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView subtitleHint;
     private AutoTransition autoTransition;
     private ViewGroup rootView;
+
+    public static MutableLiveData<String> mld = new MutableLiveData<>();
+    public MutableLiveData<String> getmld() {
+        if (mld == null) {
+            mld = new MutableLiveData<>();
+        }
+        return mld;
+    }
+
 
     private int dp16;
     private int dp2;
@@ -101,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    private void updateQRui(String updatedStringForQRcode, String updatedStringType, Bitmap updatedQr_bitmap){
+    public void updateQRui(String updatedStringForQRcode, String updatedStringType, Bitmap updatedQr_bitmap){
         // Update the text box
         tv.setText(updatedStringForQRcode);
 
@@ -151,16 +162,6 @@ public class MainActivity extends AppCompatActivity {
         // Handles intent captures and returns the text values in a string
         // The function will also need to handle onNewIntent() as well
         stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
-//        ExecutorService executor = Executors.newSingleThreadExecutor();
-//        Handler handler = new Handler(Looper.getMainLooper());
-//
-//        executor.execute(() -> {
-//            //Background work here
-//            stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
-//            handler.post(() -> {
-//                //UI Thread work here
-//            });
-//        });
 
         // Get the string type from the intent
         String finalStringType = new StringUtil().getStringType(getIntent());
@@ -232,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
                 qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode); // crashes the app if null
                 iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
                 subtitleHint.setText(finalStringType);
-
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -277,6 +277,12 @@ public class MainActivity extends AppCompatActivity {
             subtitleHint.setText(finalStringType);
         }
 
+        // observe mld for changes in stringForQRcode
+        mld.observe(this, s -> {
+            Log.i("observe", "string: " + s + getmld().getValue() );
+            //tv.setText(s);
+        });
+
     }
 
     @Override
@@ -285,10 +291,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Grab the text from the new intent and update the textedit
         stringForQRcode = new StringUtil().getStringFromIntent(this, intent);
+        mld.setValue(stringForQRcode);
         //tv.setText(stringForQRcode);
 
         // Then update the QR code with the corresponding text
-        qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
+        qr_bitmap = new StringUtil().stringToQRcode(getApplicationContext(), stringForQRcode);
         //iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
 
         // Move the text type hint out of the way of the text if there's a given text
