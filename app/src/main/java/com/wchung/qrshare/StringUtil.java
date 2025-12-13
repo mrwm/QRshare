@@ -8,9 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -33,9 +30,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class StringUtil extends AppCompatActivity {
 
@@ -48,15 +42,15 @@ public class StringUtil extends AppCompatActivity {
         return stringType;
     }
 
-    public String getStringFromIntent(Context context, Intent intent) {
+    public Object getStringFromIntent(Context context, Intent intent) {
         String intentAction = intent.getAction();
         //Log.i("getStringFromIntent", "intentAction: " + intentAction);
 
-        AtomicReference<String> intentText = new AtomicReference<>(intent.getStringExtra(Intent.EXTRA_TEXT));
+        String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
         //Log.i("getStringFromIntent", "intentText: " + intentText);
         // Return immediately if there's text from the intent, not from the included content
-        if (intentText.get() != null) {
-            return intentText.get();
+        if (intentText != null) {
+            return intentText;
         }
 
         // Handle content that came with the intent
@@ -85,35 +79,14 @@ public class StringUtil extends AppCompatActivity {
                             App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                 }
 
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // update a reference to the ImageView with the decoded data?
-                    }
-                });
-
                 // Encode anything not text to Base64
                 if (!getStringType(intent).startsWith("text/")) {
                     Log.d("getStringFromIntent", "ITS NOT A TEXT FILE!");
                     try {
                         byte[] bytes = getBytes(inputStream);
-
-
-                        executor.execute(() -> {
-                            // Background work here
-                            intentText.set(Base64.encodeToString(bytes, Base64.DEFAULT));
-                            Log.i("getStringFromIntent", "Setting the mld value");
-                            MainActivity.mld.postValue(intentText.get());
-                            handler.post(() -> {
-                                // UI Thread work here
-                                Log.i("getStringFromIntent", "intentText: " + intentText.get());
-                            });
-                        });
-
-
-                        //return "data:" + getStringType(intent) + ";base64," + intentText.get();
+                        return bytes;
+                        //intentText = Base64.encodeToString(bytes,Base64.DEFAULT);
+                        //return "data:" + getStringType(intent) + ";base64," + intentText;
                     } catch (Exception e) {
                         Log.e("StreamProcessing", "Error accessing stream data", e);
                     }
@@ -126,9 +99,9 @@ public class StringUtil extends AppCompatActivity {
                     total.append(line).append('\n');
                 }
                 inputStream.close();
-                intentText.set(total.toString());
+                intentText = total.toString();
                 //Log.i("getStringFromIntent", "intentText: " + intentText);
-                return intentText.get();
+                return intentText;
 
             } catch (IOException e) {
                 // Handle exceptions

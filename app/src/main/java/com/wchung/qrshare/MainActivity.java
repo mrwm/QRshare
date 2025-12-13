@@ -11,11 +11,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -35,8 +39,8 @@ import android.widget.Toast;
 // androidx.*
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.compose.ui.node.WeakReference;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
@@ -44,10 +48,6 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.viewmodel.internal.ViewModelProviders;
 
 // java.*
 import java.io.ByteArrayOutputStream;
@@ -55,6 +55,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.BreakIterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 // Google material color
 //import com.google.android.material.color.DynamicColors;
@@ -62,23 +65,14 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     private Bitmap qr_bitmap;
-    private TextView tv;
+    private static TextView tv;
     private ImageView iv;
     private File cacheFile;
-    private String stringForQRcode;
+    private static String stringForQRcode;
 
     private TextView subtitleHint;
     private AutoTransition autoTransition;
     private ViewGroup rootView;
-
-    public static MutableLiveData<String> mld = new MutableLiveData<>();
-    public MutableLiveData<String> getmld() {
-        if (mld == null) {
-            mld = new MutableLiveData<>();
-        }
-        return mld;
-    }
-
 
     private int dp16;
     private int dp2;
@@ -112,25 +106,6 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    public void updateQRui(String updatedStringForQRcode, String updatedStringType, Bitmap updatedQr_bitmap){
-        // Update the text box
-        tv.setText(updatedStringForQRcode);
-
-        // Then update the QR code with the corresponding text
-        iv.setImageDrawable(roundifyImage(iv, updatedQr_bitmap, dp16/2, MainActivity.this));
-
-        // Move the text type hint out of the way of the text if there's a given text
-        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-        subtitleHint.setText(updatedStringType);
-        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        if (tv.getText().toString().isEmpty()) {
-            // Don't move the text type hint if there's no text
-            setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
-            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            subtitleHint.setText(getString(R.string.qr_instructions));
-
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +136,35 @@ public class MainActivity extends AppCompatActivity {
         // Do something about intent captures
         // Handles intent captures and returns the text values in a string
         // The function will also need to handle onNewIntent() as well
-        stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
+        Object obj = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
+        Log.i("onCreate", "obj: " + obj);
+        if (obj == null) {
+            stringForQRcode = null;
+        } else if (obj instanceof String) {
+            stringForQRcode = obj.toString();
+        } else {
+            String intentType = new StringUtil().getStringType(getIntent());
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+
+            handler.post(() -> {
+                // UI Thread work here
+                stringForQRcode = App.getRes().getString(R.string.encoding);
+                tv.setText(stringForQRcode);
+            });
+            executor.execute(() -> {
+                // Background work here
+                stringForQRcode = Base64.encodeToString((byte[]) obj,Base64.DEFAULT);
+                //Log.i("oncreate", "stringForQRcode: " + stringForQRcode + "background");
+
+                Message msg = handler.obtainMessage();
+                msg.obj = "data:" + intentType + ";base64," + stringForQRcode;
+                handler.sendMessage(msg);
+            });
+            executor.shutdown();
+            //stringForQRcode = "data:" + new StringUtil().getStringType(intent) + ";base64," + Base64.encodeToString((byte[]) obj,Base64.DEFAULT);
+            //stringForQRcode = App.getRes().getString(R.string.encoding);
+        }
+        //stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent()).toString();
 
         // Get the string type from the intent
         String finalStringType = new StringUtil().getStringType(getIntent());
@@ -194,16 +197,15 @@ public class MainActivity extends AppCompatActivity {
             lp.setMargins(dp16, dp16, dp16, dp16);
         }
 
+        // Set the text view to the stringForQRcode
+        tv = findViewById(R.id.qr_subtitle);
+        tv.setText(stringForQRcode);
+
         // Clear the focus when the image view is tapped. Just a pretty touch effect
         iv.setOnClickListener(view -> tv.clearFocus());
 
         // Open a menu when long pressing the image
         MainActivity.this.registerForContextMenu(iv);
-
-        // Set the text view to the stringForQRcode
-        tv = findViewById(R.id.qr_subtitle);
-        tv.setText(stringForQRcode);
-        //Log.i("onCreate", "stringType: " + stringType);
 
         // The wild mess to programmatically create a TextView :)
         subtitleHint = new TextView(MainActivity.this);
@@ -250,7 +252,8 @@ public class MainActivity extends AppCompatActivity {
             //Log.i("onFocusChange", "hasFocus: " + hasFocus);
             TransitionManager.beginDelayedTransition(rootView, autoTransition);
             if(hasFocus) {
-                subtitleHint.setText(getString(R.string.app_name));
+                if (tv.getText() == null || tv.getText().toString().isEmpty())
+                    subtitleHint.setText(getString(R.string.app_name));
                 setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
                 subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             } else {
@@ -277,42 +280,69 @@ public class MainActivity extends AppCompatActivity {
             subtitleHint.setText(finalStringType);
         }
 
-        // observe mld for changes in stringForQRcode
-        mld.observe(this, s -> {
-            Log.i("observe", "string: " + s + getmld().getValue() );
-            //tv.setText(s);
-        });
-
     }
+
+    static Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+//            final MainActivity activity = new MainActivity();
+            //Log.i("handleMessage", "stringForQRcode: " + stringForQRcode + msg.obj.toString() + "handler" + activity);
+            stringForQRcode = msg.obj.toString();
+//            TextView tv = findViewById(R.id.qr_subtitle);
+            tv.setText(stringForQRcode);
+        }
+    };
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
 
-        // Grab the text from the new intent and update the textedit
-        stringForQRcode = new StringUtil().getStringFromIntent(this, intent);
-        mld.setValue(stringForQRcode);
-        //tv.setText(stringForQRcode);
+        String intentType = new StringUtil().getStringType(intent);
+        // Grab the data from the new intent and update the textedit
+        Object obj = new StringUtil().getStringFromIntent(this, intent);
+        if (obj == null) {
+            stringForQRcode = null;
+        } else if (obj instanceof String) {
+            stringForQRcode = obj.toString();
+        } else {
+
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+
+            executor.execute(() -> {
+                // Background work here
+                stringForQRcode = Base64.encodeToString((byte[]) obj,Base64.DEFAULT);
+//                Log.i("onNewIntent", "stringForQRcode: " + stringForQRcode + "background");
+
+                Message msg = handler.obtainMessage();
+                msg.obj = "data:" + intentType + ";base64," + stringForQRcode;
+                handler.sendMessage(msg);
+            });
+            executor.shutdown();
+
+
+            //stringForQRcode = "data:" + new StringUtil().getStringType(intent) + ";base64," + Base64.encodeToString((byte[]) obj,Base64.DEFAULT);
+            stringForQRcode = App.getRes().getString(R.string.encoding);
+            //return "data:" + getStringType(intent) + ";base64," + intentText;
+        }
+        //stringForQRcode = Base64.encodeToString(stringForQRcode.getBytes(),Base64.DEFAULT);
+//        TextView tv = findViewById(R.id.qr_subtitle);
+        tv.setText(stringForQRcode);
 
         // Then update the QR code with the corresponding text
-        qr_bitmap = new StringUtil().stringToQRcode(getApplicationContext(), stringForQRcode);
-        //iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
+        qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
+        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
 
         // Move the text type hint out of the way of the text if there's a given text
-        //setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-        //subtitleHint.setText(new StringUtil().getStringType(intent));
-        //subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        //if (tv.getText().toString().isEmpty()) {
-        //    // Don't move the text type hint if there's no text
-        //    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
-        //    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        //    subtitleHint.setText(getString(R.string.qr_instructions));
-        //}
+        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
+        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        subtitleHint.setText(intentType);
+        if (tv.getText() != null && !tv.getText().toString().isEmpty()) {
+            // Don't move the text type hint if there's no text
+            setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            subtitleHint.setText(getString(R.string.qr_instructions));
 
-        // welp, this was one part of an attempt to try get the base64 thing in StringUtil
-        // to run in a background thread. It didn't work.
-        updateQRui(stringForQRcode, new StringUtil().getStringType(intent), qr_bitmap);
-
+        }
     }
 
     @Override
@@ -352,6 +382,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.edit) {
             // Kinda funny, I used this menu option to test the animations for the text view.
             // I didn't expect this that I would have a use for this menu item :)
+//            TextView tv = findViewById(R.id.qr_subtitle);
             tv.requestFocus();
             //Toast.makeText(this, R.string.menu_edit, Toast.LENGTH_SHORT).show();
         } else if (itemId == R.id.share) {
