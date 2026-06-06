@@ -6,6 +6,10 @@
 [![GitHub downloads](https://img.shields.io/github/downloads/mrwm/QRshare/total.svg?style=for-the-badge)](https://github.com/mrwm/QRshare/releases/)
 [![GitHub latest release](https://img.shields.io/github/v/release/mrwm/QRshare?display_name=tag&style=for-the-badge)](https://github.com/mrwm/QRshare/releases/latest)
 
+<a href="https://www.buymeacoffee.com/mrwm" target="_blank" style="align: center">
+  <img src="https://www.buymeacoffee.com/assets/img/custom_images/white_img.png" alt="Buy Me A Coffee" style="height: 75; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+</a>
+
 </div>
 
 ---
