@@ -49,6 +49,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import android.widget.ProgressBar;
 
 // Google material color
 //import com.google.android.material.color.DynamicColors;
@@ -67,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int dp16;
     private int dp2;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ProgressBar progressBar;
+    private String finalStringType;
 
     public static float convertDpToPixel(float dp, @NonNull Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi /
@@ -124,22 +132,12 @@ public class MainActivity extends AppCompatActivity {
         // Define the cache file location
         cacheFile = new File(getCacheDir(), "QR_image.jpg");
 
-        // Do something about intent captures
-        // Handles intent captures and returns the text values in a string
-        // The function will also need to handle onNewIntent() as well
-        stringForQRcode = new StringUtil().getStringFromIntent(MainActivity.this, getIntent());
-
-        // Get the string type from the intent
-        String finalStringType = new StringUtil().getStringType(getIntent());
-
-        // Convert the string to a QR code
-        qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
-        // Create a function that takes a string and creates a QR code to cacheFile
-        //saveBitmapToCache(qr_bitmap);
-
         // Set the image view to the QR code
         iv = findViewById(R.id.image_view_qr);
-        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
+
+        // Start the progress bar
+        progressBar = findViewById(R.id.progress_bar);
+        tv = findViewById(R.id.qr_subtitle);
 
         // Make the image corners round
         iv.setClipToOutline(true);
@@ -166,11 +164,6 @@ public class MainActivity extends AppCompatActivity {
         // Open a menu when long pressing the image
         MainActivity.this.registerForContextMenu(iv);
 
-        // Set the text view to the stringForQRcode
-        tv = findViewById(R.id.qr_subtitle);
-        tv.setText(stringForQRcode);
-        //Log.i("onCreate", "stringType: " + stringType);
-
         // The wild mess to programmatically create a TextView :)
         subtitleHint = new TextView(MainActivity.this);
         subtitleHint.setId(View.generateViewId());
@@ -196,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 //Log.i("afterTextChanged", "string: " + s.toString());
                 stringForQRcode = s.toString();
-                qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode); // crashes the app if null
+                qr_bitmap = StringUtil.stringToQRcode(stringForQRcode);
                 iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
                 subtitleHint.setText(finalStringType);
 
@@ -237,37 +230,54 @@ public class MainActivity extends AppCompatActivity {
         autoTransition.setDuration(75); // 50 works too, but is slightly too fast to notice
         rootView.addView(subtitleHint);
 
-        if (stringForQRcode != null) {
-            TransitionManager.beginDelayedTransition(rootView, autoTransition);
-            setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            subtitleHint.setText(finalStringType);
-        }
-
+        processIntentAsync(getIntent());
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
+        processIntentAsync(intent);
+    }
 
-        // Grab the text from the new intent and update the textedit
-        stringForQRcode = new StringUtil().getStringFromIntent(this, intent);
-        tv.setText(stringForQRcode);
+    private void processIntentAsync(Intent intent) {
+        if (intent == null) return;
 
-        // Then update the QR code with the corresponding text
-        qr_bitmap = new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode);
-        iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16/2, MainActivity.this));
+        progressBar.setVisibility(View.VISIBLE);
+        iv.setAlpha(0.5f); // Visual feedback that it's loading
 
-        // Move the text type hint out of the way of the text if there's a given text
-        setViewMargins(subtitleHint, dp16, -dp16-dp2, dp16/2, dp16/2);
-        subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        if (tv.getText().toString().isEmpty()) {
-            // Don't move the text type hint if there's no text
-            setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
-            subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            subtitleHint.setText(getString(R.string.qr_instructions));
+        executor.execute(() -> {
+            String text = StringUtil.getStringFromIntent(this, intent);
+            String type = StringUtil.getStringType(intent);
+            Bitmap bitmap = StringUtil.stringToQRcode(text);
 
-        }
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+
+                stringForQRcode = text;
+                finalStringType = type;
+                qr_bitmap = bitmap;
+
+                tv.setText(stringForQRcode);
+                if (qr_bitmap != null) {
+                    iv.setImageDrawable(roundifyImage(iv, qr_bitmap, dp16 / 2, this));
+                }
+
+                // Update hint and margins
+                if (stringForQRcode != null && !stringForQRcode.isEmpty()) {
+                    TransitionManager.beginDelayedTransition(rootView, autoTransition);
+                    setViewMargins(subtitleHint, dp16, -dp16 - dp2, dp16 / 2, dp16 / 2);
+                    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                    subtitleHint.setText(finalStringType);
+                } else {
+                    setViewMargins(subtitleHint, dp16, dp16, dp16, dp16);
+                    subtitleHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                    subtitleHint.setText(getString(R.string.qr_instructions));
+                }
+
+                progressBar.setVisibility(View.GONE);
+                iv.setAlpha(1.0f);
+            });
+        });
     }
 
     @Override
@@ -279,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_list, menu);
-        if (new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode) == null) {
+        if (qr_bitmap == null) {
             menu.findItem(R.id.copy).setEnabled(false);
             menu.findItem(R.id.share).setEnabled(false);
         }
@@ -288,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Uri uriForFile = null;
-        if (new StringUtil().stringToQRcode(MainActivity.this, stringForQRcode) != null) {
+        if (qr_bitmap != null) {
             // Save the image to the cache
             saveBitmapToCache(qr_bitmap);
             uriForFile = FileProvider.getUriForFile(MainActivity.this,
