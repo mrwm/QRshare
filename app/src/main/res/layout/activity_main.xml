@@ -16,7 +16,12 @@
         android:background="@drawable/ic_launcher_foreground"
         android:layout_weight="0.5"
         tools:context=".draft">
-
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
         <ImageView
             android:id="@+id/image_view_qr"
             android:layout_width="match_parent"
