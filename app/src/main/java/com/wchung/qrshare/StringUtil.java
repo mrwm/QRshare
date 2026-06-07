@@ -10,9 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -31,18 +28,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StringUtil extends AppCompatActivity {
+public class StringUtil {
 
-    public String getStringType(Intent intent) {
-        String stringType;
-        stringType = intent.getType();
+    public static String getStringType(Intent intent) {
+        String stringType = intent.getType();
         if (stringType == null) {
             stringType = "QR share";
         }
         return stringType;
     }
 
-    public String getStringFromIntent(Context context, Intent intent) {
+    public static String getStringFromIntent(Context context, Intent intent) {
         String intentAction = intent.getAction();
         //Log.i("getStringFromIntent", "intentAction: " + intentAction);
 
@@ -75,8 +71,8 @@ public class StringUtil extends AppCompatActivity {
                 //Log.i("getStringFromIntent", "File Size: " + inputStream.available());
                 if (inputStream.available() > 1307) {
                     Log.w("getStringFromIntent", "Data too large to share");
-                    Toast.makeText(context,
-                            App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context,
+                    //        App.getRes().getString(R.string.data_too_large), Toast.LENGTH_LONG).show();
                 }
 
                 // Encode anything not text to Base64
@@ -84,8 +80,8 @@ public class StringUtil extends AppCompatActivity {
                     Log.d("getStringFromIntent", "ITS NOT A TEXT FILE!");
                     try {
                         byte[] bytes = getBytes(inputStream);
-                        intentText = Base64.encodeToString(bytes,Base64.DEFAULT);
-                        return "data:" + getStringType(intent) + ";base64," + intentText;
+                        String base64Text = Base64.encodeToString(bytes, Base64.DEFAULT);
+                        return "data:" + getStringType(intent) + ";base64," + base64Text;
                     } catch (Exception e) {
                         Log.e("StreamProcessing", "Error accessing stream data", e);
                     }
@@ -98,15 +94,13 @@ public class StringUtil extends AppCompatActivity {
                     total.append(line).append('\n');
                 }
                 inputStream.close();
-                intentText = total.toString();
-                //Log.i("getStringFromIntent", "intentText: " + intentText);
-                return intentText;
+                return total.toString();
 
             } catch (IOException e) {
                 // Handle exceptions
                 Log.e("StreamProcessing", "Error accessing stream data", e);
             }
-            Toast.makeText(context, "Unable to parse the data", Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, "Unable to parse the data", Toast.LENGTH_LONG).show();
             Log.wtf("getStringFromIntent", "Intent.ACTION_SEND: how did you get here?");
             return null;
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(intentAction)) {
@@ -114,14 +108,14 @@ public class StringUtil extends AppCompatActivity {
             //uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri.class); for API >= 33
             uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             Log.d("getStringFromIntent", "uris: " + uris);
-            Toast.makeText(context,
-                    App.getRes().getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
+            //Toast.makeText(context,
+            //        App.getRes().getString(R.string.multi_share_not_supported), Toast.LENGTH_LONG).show();
         }
         Log.e("getStringFromIntent", "You somehow reached the end...");
         return null;
     }
 
-    public Bitmap stringToQRcode(Context context, String stringForQRcode) {
+    public static Bitmap stringToQRcode(String stringForQRcode) {
         String no_data = App.getRes().getString(R.string.no_data);
         int qrSize;
         qrSize = Math.min(Resources.getSystem().getDisplayMetrics().widthPixels,
@@ -143,7 +137,6 @@ public class StringUtil extends AppCompatActivity {
                     BarcodeFormat.QR_CODE, qrSize, qrSize, hints);
         } catch (WriterException ex) {
             Log.e("QRCodeGenerator", "Error generating QR code", ex);
-            Toast.makeText(context, "Error generating QR code", Toast.LENGTH_LONG).show();
             return null;
         }
 
